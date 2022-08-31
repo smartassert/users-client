@@ -127,11 +127,13 @@ class ClientTest extends TestCase
     }
 
     /**
-     * @dataProvider createThrowsExceptionDataProvider
+     * @dataProvider networkErrorExceptionDataProvider
+     * @dataProvider invalidJsonResponseExceptionDataProvider
+     * @dataProvider userAlreadyExistsExceptionDataProvider
      *
      * @param class-string<\Throwable> $expectedExceptionClass
      */
-    public function testCreateThrowsException(
+    public function testCreateUserThrowsException(
         ResponseInterface|ClientExceptionInterface $httpFixture,
         string $expectedExceptionClass,
     ): void {
@@ -145,21 +147,9 @@ class ClientTest extends TestCase
     /**
      * @return array<mixed>
      */
-    public function createThrowsExceptionDataProvider(): array
+    public function userAlreadyExistsExceptionDataProvider(): array
     {
         return [
-            'network error' => [
-                'httpFixture' => new ConnectException('Exception message', new Request('GET', '/')),
-                'expectedExceptionClass' => ClientExceptionInterface::class,
-            ],
-            'invalid response content type' => [
-                'httpFixture' => new Response(200, ['content-type' => 'text/plain']),
-                'expectedExceptionClass' => InvalidResponseContentException::class,
-            ],
-            'invalid response data' => [
-                'httpFixture' => new Response(200, ['content-type' => 'application/json'], '1'),
-                'expectedExceptionClass' => InvalidResponseDataException::class,
-            ],
             'already exists' => [
                 'httpFixture' => new Response(409, ['content-type' => 'application/json'], '1'),
                 'expectedExceptionClass' => UserAlreadyExistsException::class,
@@ -209,7 +199,8 @@ class ClientTest extends TestCase
     }
 
     /**
-     * @dataProvider createFrontendTokenThrowsExceptionDataProvider
+     * @dataProvider networkErrorExceptionDataProvider
+     * @dataProvider invalidJsonResponseExceptionDataProvider
      *
      * @param class-string<\Throwable> $expectedExceptionClass
      */
@@ -222,27 +213,6 @@ class ClientTest extends TestCase
         $this->expectException($expectedExceptionClass);
 
         $this->client->createFrontendToken('email', 'password');
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function createFrontendTokenThrowsExceptionDataProvider(): array
-    {
-        return [
-            'network error' => [
-                'httpFixture' => new ConnectException('Exception message', new Request('GET', '/')),
-                'expectedExceptionClass' => ClientExceptionInterface::class,
-            ],
-            'invalid response content type' => [
-                'httpFixture' => new Response(200, ['content-type' => 'text/plain']),
-                'expectedExceptionClass' => InvalidResponseContentException::class,
-            ],
-            'invalid response data' => [
-                'httpFixture' => new Response(200, ['content-type' => 'application/json'], '1'),
-                'expectedExceptionClass' => InvalidResponseDataException::class,
-            ],
-        ];
     }
 
     /**
@@ -276,6 +246,36 @@ class ClientTest extends TestCase
                 'expected' => [
                     'token' => 'encoded token data',
                 ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function networkErrorExceptionDataProvider(): array
+    {
+        return [
+            'network error' => [
+                'httpFixture' => new ConnectException('Exception message', new Request('GET', '/')),
+                'expectedExceptionClass' => ClientExceptionInterface::class,
+            ],
+        ];
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function invalidJsonResponseExceptionDataProvider(): array
+    {
+        return [
+            'invalid response content type' => [
+                'httpFixture' => new Response(200, ['content-type' => 'text/plain']),
+                'expectedExceptionClass' => InvalidResponseContentException::class,
+            ],
+            'invalid response data' => [
+                'httpFixture' => new Response(200, ['content-type' => 'application/json'], '1'),
+                'expectedExceptionClass' => InvalidResponseDataException::class,
             ],
         ];
     }
