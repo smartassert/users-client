@@ -6,10 +6,12 @@ namespace SmartAssert\UsersClient;
 
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface as HttpClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
 
 class Client
 {
     public function __construct(
+        private readonly RequestFactoryInterface $requestFactory,
         private readonly RequestBuilder $requestBuilder,
         private readonly HttpClientInterface $httpClient,
         private readonly Routes $routes,
@@ -18,7 +20,8 @@ class Client
 
     public function verifyApiToken(string $token): ?string
     {
-        $request = $this->requestBuilder->createVerifyApiTokenRequest($this->routes->getVerifyApiTokenUrl(), $token);
+        $request = $this->requestFactory->createRequest('GET', $this->routes->getVerifyApiTokenUrl());
+        $request = $this->requestBuilder->addJwtAuthorizationHeader($request, $token);
 
         try {
             $response = $this->httpClient->sendRequest($request);

@@ -46,9 +46,8 @@ class ClientTest extends TestCase
         ;
 
         $this->client = new Client(
-            new RequestBuilder(
-                new HttpFactory()
-            ),
+            new HttpFactory(),
+            new RequestBuilder(),
             new HttpClient([
                 'handler' => $handlerStack,
             ]),
