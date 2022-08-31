@@ -29,7 +29,11 @@
     },
     "autoload": {
         "psr-4": {
-            "SmartAssert\\UsersClient\\": "src/",
+            "SmartAssert\\UsersClient\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
             "SmartAssert\\UsersClient\\Tests\\": "tests/"
         }
     },
