@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace SmartAssert\UsersClient\Tests\Functional\Client;
 
 use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -16,6 +15,8 @@ use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 
 class CreateUserTest extends AbstractClientTest
 {
+    use CreateDefaultHandlerStackTrait;
+
     /**
      * @dataProvider networkErrorExceptionDataProvider
      * @dataProvider invalidJsonResponseExceptionDataProvider
@@ -114,10 +115,5 @@ class CreateUserTest extends AbstractClientTest
                 ],
             ],
         ];
-    }
-
-    protected function createHandlerStack(): HandlerStack
-    {
-        return HandlerStack::create($this->mockHandler);
     }
 }
