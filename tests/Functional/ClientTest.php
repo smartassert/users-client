@@ -207,4 +207,76 @@ class ClientTest extends TestCase
             ],
         ];
     }
+
+    /**
+     * @dataProvider createFrontendTokenThrowsExceptionDataProvider
+     *
+     * @param class-string<\Throwable> $expectedExceptionClass
+     */
+    public function testCreateFrontendTokenThrowsException(
+        ResponseInterface|ClientExceptionInterface $httpFixture,
+        string $expectedExceptionClass,
+    ): void {
+        $this->mockHandler->append($httpFixture);
+
+        $this->expectException($expectedExceptionClass);
+
+        $this->client->createFrontendToken('email', 'password');
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function createFrontendTokenThrowsExceptionDataProvider(): array
+    {
+        return [
+            'network error' => [
+                'httpFixture' => new ConnectException('Exception message', new Request('GET', '/')),
+                'expectedExceptionClass' => ClientExceptionInterface::class,
+            ],
+            'invalid response content type' => [
+                'httpFixture' => new Response(200, ['content-type' => 'text/plain']),
+                'expectedExceptionClass' => InvalidResponseContentException::class,
+            ],
+            'invalid response data' => [
+                'httpFixture' => new Response(200, ['content-type' => 'application/json'], '1'),
+                'expectedExceptionClass' => InvalidResponseDataException::class,
+            ],
+        ];
+    }
+
+    /**
+     * @param array<mixed> $expected
+     *
+     * @dataProvider createFrontendTokenSuccessDataProvider
+     */
+    public function testCreateFrontendTokenSuccess(ResponseInterface $httpFixture, array $expected): void
+    {
+        $this->mockHandler->append($httpFixture);
+
+        $actual = $this->client->createFrontendToken('email', 'password');
+
+        self::assertEquals($expected, $actual);
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function createFrontendTokenSuccessDataProvider(): array
+    {
+        return [
+            'created' => [
+                'httpFixture' => new Response(
+                    200,
+                    ['content-type' => 'application/json'],
+                    (string) json_encode([
+                        'token' => 'encoded token data',
+                    ])
+                ),
+                'expected' => [
+                    'token' => 'encoded token data',
+                ],
+            ],
+        ];
+    }
 }

@@ -80,4 +80,39 @@ class Client
 
         return $responseData;
     }
+
+    /**
+     * @throws ClientExceptionInterface
+     * @throws InvalidResponseContentException
+     * @throws InvalidResponseDataException
+     *
+     * @return array<mixed>
+     */
+    public function createFrontendToken(string $email, string $password): array
+    {
+        $request = $this->requestFactory
+            ->createRequest('POST', $this->routes->getCreateFrontendTokenUrl())
+            ->withAddedHeader('content-type', 'application/json')
+            ->withBody($this->streamFactory->createStream((string) json_encode([
+                'username' => $email,
+                'password' => $password,
+            ])))
+        ;
+
+        $response = $this->httpClient->sendRequest($request);
+
+        $expectedContentType = 'application/json';
+        $actualContentType = $response->getHeaderLine('content-type');
+
+        if ($expectedContentType !== $actualContentType) {
+            throw new InvalidResponseContentException($expectedContentType, $actualContentType, $response);
+        }
+
+        $responseData = json_decode($response->getBody()->getContents(), true);
+        if (!is_array($responseData)) {
+            throw new InvalidResponseDataException('array', gettype($responseData), $response);
+        }
+
+        return $responseData;
+    }
 }
