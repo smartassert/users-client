@@ -10,11 +10,13 @@ use Psr\Http\Message\ResponseInterface;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\InvalidJsonResponseExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
+use SmartAssert\UsersClient\Tests\Functional\DataProvider\ValidJsonResponseDataProviderTrait;
 
 class CreateUserTest extends AbstractClientTest
 {
     use NetworkErrorExceptionDataProviderTrait;
     use InvalidJsonResponseExceptionDataProviderTrait;
+    use ValidJsonResponseDataProviderTrait;
 
     /**
      * @dataProvider networkErrorExceptionDataProvider
@@ -59,30 +61,5 @@ class CreateUserTest extends AbstractClientTest
         $actual = $this->client->createUser('admin token', 'email', 'password');
 
         self::assertEquals($expected, $actual);
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function validJsonResponseDataProvider(): array
-    {
-        return [
-            'created' => [
-                'httpFixture' => new Response(
-                    200,
-                    ['content-type' => 'application/json'],
-                    (string) json_encode([
-                        'key1' => 'value1',
-                        'key2' => 'value2',
-                        'key3' => 'value3',
-                    ])
-                ),
-                'expected' => [
-                    'key1' => 'value1',
-                    'key2' => 'value2',
-                    'key3' => 'value3',
-                ],
-            ],
-        ];
     }
 }
