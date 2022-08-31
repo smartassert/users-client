@@ -21,6 +21,7 @@ use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
 use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
 use SmartAssert\UsersClient\RequestBuilder;
 use SmartAssert\UsersClient\Routes;
+use SmartAssert\UsersClient\UserCreationOutcome;
 use webignition\HttpHistoryContainer\Container as HttpHistoryContainer;
 
 class ClientTest extends TestCase
@@ -158,6 +159,69 @@ class ClientTest extends TestCase
             'invalid response data' => [
                 'httpFixture' => new Response(200, ['content-type' => 'application/json'], '1'),
                 'expectedExceptionClass' => InvalidResponseDataException::class,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider createSuccessDataProvider
+     */
+    public function testCreateSuccess(ResponseInterface $httpFixture, UserCreationOutcome $expected): void
+    {
+        $this->mockHandler->append($httpFixture);
+
+        $actual = $this->client->createUser('admin token', 'email', 'password');
+
+        self::assertEquals($expected, $actual);
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function createSuccessDataProvider(): array
+    {
+        return [
+            'created' => [
+                'httpFixture' => new Response(
+                    200,
+                    ['content-type' => 'application/json'],
+                    (string) json_encode([
+                        'user' => [
+                            'key1' => 'value1',
+                            'key2' => 'value2',
+                        ],
+                    ])
+                ),
+                'expected' => new UserCreationOutcome(
+                    true,
+                    [
+                        'user' => [
+                            'key1' => 'value1',
+                            'key2' => 'value2',
+                        ],
+                    ]
+                ),
+            ],
+            'already exists' => [
+                'httpFixture' => new Response(
+                    409,
+                    ['content-type' => 'application/json'],
+                    (string) json_encode([
+                        'user' => [
+                            'key3' => 'value3',
+                            'key4' => 'value4',
+                        ],
+                    ])
+                ),
+                'expected' => new UserCreationOutcome(
+                    false,
+                    [
+                        'user' => [
+                            'key3' => 'value3',
+                            'key4' => 'value4',
+                        ],
+                    ]
+                ),
             ],
         ];
     }
