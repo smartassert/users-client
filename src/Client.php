@@ -7,6 +7,7 @@ namespace SmartAssert\UsersClient;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface as HttpClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
 use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
@@ -66,6 +67,38 @@ class Client
             throw new UserAlreadyExistsException($email, $response);
         }
 
+        return $this->getJsonResponseData($response);
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     * @throws InvalidResponseContentException
+     * @throws InvalidResponseDataException
+     *
+     * @return array<mixed>
+     */
+    public function createFrontendToken(string $email, string $password): array
+    {
+        $request = $this->requestFactory
+            ->createRequest('POST', $this->routes->getCreateFrontendTokenUrl())
+            ->withAddedHeader('content-type', 'application/json')
+            ->withBody($this->streamFactory->createStream((string) json_encode([
+                'username' => $email,
+                'password' => $password,
+            ])))
+        ;
+
+        return $this->getJsonResponseData($this->httpClient->sendRequest($request));
+    }
+
+    /**
+     * @throws InvalidResponseContentException
+     * @throws InvalidResponseDataException
+     *
+     * @return array<mixed>
+     */
+    private function getJsonResponseData(ResponseInterface $response): array
+    {
         $expectedContentType = 'application/json';
         $actualContentType = $response->getHeaderLine('content-type');
 
@@ -73,11 +106,11 @@ class Client
             throw new InvalidResponseContentException($expectedContentType, $actualContentType, $response);
         }
 
-        $responseData = json_decode($response->getBody()->getContents(), true);
-        if (!is_array($responseData)) {
-            throw new InvalidResponseDataException('array', gettype($responseData), $response);
+        $data = json_decode($response->getBody()->getContents(), true);
+        if (!is_array($data)) {
+            throw new InvalidResponseDataException('array', gettype($data), $response);
         }
 
-        return $responseData;
+        return $data;
     }
 }

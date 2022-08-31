@@ -8,16 +8,19 @@ class Routes
 {
     public const DEFAULT_VERIFY_API_TOKEN_PATH = '/api/token/verify';
     public const DEFAULT_CREATE_USER_PATH = '/admin/user/create';
+    public const DEFAULT_CREATE_FRONTEND_TOKEN_PATH = '/frontend/token/create';
 
     /**
      * @param non-empty-string $baseUrl
      * @param non-empty-string $verifyApiTokenPath
      * @param non-empty-string $createUserPath
+     * @param non-empty-string $createFrontendTokenPath
      */
     public function __construct(
         private readonly string $baseUrl,
         private readonly string $verifyApiTokenPath = self::DEFAULT_VERIFY_API_TOKEN_PATH,
         private readonly string $createUserPath = self::DEFAULT_CREATE_USER_PATH,
+        private readonly string $createFrontendTokenPath = self::DEFAULT_CREATE_FRONTEND_TOKEN_PATH,
     ) {
     }
 
@@ -35,5 +38,13 @@ class Routes
     public function getCreateUserUrl(): string
     {
         return $this->baseUrl . $this->createUserPath;
+    }
+
+    /**
+     * @return non-empty-string
+     */
+    public function getCreateFrontendTokenUrl(): string
+    {
+        return $this->baseUrl . $this->createFrontendTokenPath;
     }
 }
