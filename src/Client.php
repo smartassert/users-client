@@ -10,6 +10,7 @@ use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
 use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
+use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 
 class Client
 {
@@ -43,8 +44,11 @@ class Client
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
+     * @throws UserAlreadyExistsException
+     *
+     * @return array<mixed>
      */
-    public function createUser(string $adminToken, string $email, string $password): UserCreationOutcome
+    public function createUser(string $adminToken, string $email, string $password): array
     {
         $request = $this->requestFactory
             ->createRequest('POST', $this->routes->getCreateUserUrl())
@@ -58,6 +62,10 @@ class Client
 
         $response = $this->httpClient->sendRequest($request);
 
+        if (409 === $response->getStatusCode()) {
+            throw new UserAlreadyExistsException($email, $response);
+        }
+
         $expectedContentType = 'application/json';
         $actualContentType = $response->getHeaderLine('content-type');
 
@@ -70,6 +78,6 @@ class Client
             throw new InvalidResponseDataException('array', gettype($responseData), $response);
         }
 
-        return new UserCreationOutcome(200 === $response->getStatusCode(), $responseData);
+        return $responseData;
     }
 }
