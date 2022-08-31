@@ -160,7 +160,7 @@ class ClientTest extends TestCase
     /**
      * @param array<mixed> $expected
      *
-     * @dataProvider createUserSuccessDataProvider
+     * @dataProvider validJsonResponseDataProvider
      */
     public function testCreateUserSuccess(ResponseInterface $httpFixture, array $expected): void
     {
@@ -169,33 +169,6 @@ class ClientTest extends TestCase
         $actual = $this->client->createUser('admin token', 'email', 'password');
 
         self::assertEquals($expected, $actual);
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function createUserSuccessDataProvider(): array
-    {
-        return [
-            'created' => [
-                'httpFixture' => new Response(
-                    200,
-                    ['content-type' => 'application/json'],
-                    (string) json_encode([
-                        'user' => [
-                            'key1' => 'value1',
-                            'key2' => 'value2',
-                        ],
-                    ])
-                ),
-                'expected' => [
-                    'user' => [
-                        'key1' => 'value1',
-                        'key2' => 'value2',
-                    ],
-                ],
-            ],
-        ];
     }
 
     /**
@@ -218,7 +191,7 @@ class ClientTest extends TestCase
     /**
      * @param array<mixed> $expected
      *
-     * @dataProvider createFrontendTokenSuccessDataProvider
+     * @dataProvider validJsonResponseDataProvider
      */
     public function testCreateFrontendTokenSuccess(ResponseInterface $httpFixture, array $expected): void
     {
@@ -227,27 +200,6 @@ class ClientTest extends TestCase
         $actual = $this->client->createFrontendToken('email', 'password');
 
         self::assertEquals($expected, $actual);
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function createFrontendTokenSuccessDataProvider(): array
-    {
-        return [
-            'created' => [
-                'httpFixture' => new Response(
-                    200,
-                    ['content-type' => 'application/json'],
-                    (string) json_encode([
-                        'token' => 'encoded token data',
-                    ])
-                ),
-                'expected' => [
-                    'token' => 'encoded token data',
-                ],
-            ],
-        ];
     }
 
     /**
@@ -276,6 +228,31 @@ class ClientTest extends TestCase
             'invalid response data' => [
                 'httpFixture' => new Response(200, ['content-type' => 'application/json'], '1'),
                 'expectedExceptionClass' => InvalidResponseDataException::class,
+            ],
+        ];
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function validJsonResponseDataProvider(): array
+    {
+        return [
+            'created' => [
+                'httpFixture' => new Response(
+                    200,
+                    ['content-type' => 'application/json'],
+                    (string) json_encode([
+                        'key1' => 'value1',
+                        'key2' => 'value2',
+                        'key3' => 'value3',
+                    ])
+                ),
+                'expected' => [
+                    'key1' => 'value1',
+                    'key2' => 'value2',
+                    'key3' => 'value3',
+                ],
             ],
         ];
     }
