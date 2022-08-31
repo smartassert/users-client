@@ -7,14 +7,14 @@ namespace SmartAssert\UsersClient\Tests\Functional\Client;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
-use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
-use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
+use SmartAssert\UsersClient\Tests\Functional\DataProvider\InvalidJsonResponseExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
 
 class CreateUserTest extends AbstractClientTest
 {
     use NetworkErrorExceptionDataProviderTrait;
+    use InvalidJsonResponseExceptionDataProviderTrait;
 
     /**
      * @dataProvider networkErrorExceptionDataProvider
@@ -59,23 +59,6 @@ class CreateUserTest extends AbstractClientTest
         $actual = $this->client->createUser('admin token', 'email', 'password');
 
         self::assertEquals($expected, $actual);
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function invalidJsonResponseExceptionDataProvider(): array
-    {
-        return [
-            'invalid response content type' => [
-                'httpFixture' => new Response(200, ['content-type' => 'text/plain']),
-                'expectedExceptionClass' => InvalidResponseContentException::class,
-            ],
-            'invalid response data' => [
-                'httpFixture' => new Response(200, ['content-type' => 'application/json'], '1'),
-                'expectedExceptionClass' => InvalidResponseDataException::class,
-            ],
-        ];
     }
 
     /**
