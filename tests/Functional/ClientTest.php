@@ -17,6 +17,8 @@ use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\UsersClient\Client;
+use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
+use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
 use SmartAssert\UsersClient\RequestBuilder;
 use SmartAssert\UsersClient\Routes;
 use webignition\HttpHistoryContainer\Container as HttpHistoryContainer;
@@ -46,8 +48,11 @@ class ClientTest extends TestCase
             ->push(Middleware::history($this->httpHistoryContainer))
         ;
 
+        $httpFactory = new HttpFactory();
+
         $this->client = new Client(
-            new HttpFactory(),
+            $httpFactory,
+            $httpFactory,
             new RequestBuilder(),
             new HttpClient([
                 'handler' => $handlerStack,
@@ -116,6 +121,43 @@ class ClientTest extends TestCase
                 'userServiceResponse' => new Response(200, [], self::USER_ID),
                 'expectedAuthorizationHeader' => $expectedAuthorizationHeader,
                 'expectedReturnValue' => self::USER_ID,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider createThrowsExceptionDataProvider
+     *
+     * @param class-string<\Throwable> $expectedExceptionClass
+     */
+    public function testCreateThrowsException(
+        ResponseInterface|ClientExceptionInterface $httpFixture,
+        string $expectedExceptionClass,
+    ): void {
+        $this->mockHandler->append($httpFixture);
+
+        $this->expectException($expectedExceptionClass);
+
+        $this->client->createUser('admin token', 'email', 'password');
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function createThrowsExceptionDataProvider(): array
+    {
+        return [
+            'network error' => [
+                'httpFixture' => new ConnectException('Exception message', new Request('GET', '/')),
+                'expectedExceptionClass' => ClientExceptionInterface::class,
+            ],
+            'invalid response content type' => [
+                'httpFixture' => new Response(200, ['content-type' => 'text/plain']),
+                'expectedExceptionClass' => InvalidResponseContentException::class,
+            ],
+            'invalid response data' => [
+                'httpFixture' => new Response(200, ['content-type' => 'application/json'], '1'),
+                'expectedExceptionClass' => InvalidResponseDataException::class,
             ],
         ];
     }
