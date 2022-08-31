@@ -12,16 +12,18 @@ use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
 use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
+use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 
-class ClientTest extends AbstractClientTest
+class CreateUserTest extends AbstractClientTest
 {
     /**
      * @dataProvider networkErrorExceptionDataProvider
      * @dataProvider invalidJsonResponseExceptionDataProvider
+     * @dataProvider userAlreadyExistsExceptionDataProvider
      *
      * @param class-string<\Throwable> $expectedExceptionClass
      */
-    public function testCreateFrontendTokenThrowsException(
+    public function testCreateUserThrowsException(
         ResponseInterface|ClientExceptionInterface $httpFixture,
         string $expectedExceptionClass,
     ): void {
@@ -29,7 +31,20 @@ class ClientTest extends AbstractClientTest
 
         $this->expectException($expectedExceptionClass);
 
-        $this->client->createFrontendToken('email', 'password');
+        $this->client->createUser('admin token', 'email', 'password');
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function userAlreadyExistsExceptionDataProvider(): array
+    {
+        return [
+            'already exists' => [
+                'httpFixture' => new Response(409, ['content-type' => 'application/json'], '1'),
+                'expectedExceptionClass' => UserAlreadyExistsException::class,
+            ],
+        ];
     }
 
     /**
@@ -37,11 +52,11 @@ class ClientTest extends AbstractClientTest
      *
      * @dataProvider validJsonResponseDataProvider
      */
-    public function testCreateFrontendTokenSuccess(ResponseInterface $httpFixture, array $expected): void
+    public function testCreateUserSuccess(ResponseInterface $httpFixture, array $expected): void
     {
         $this->mockHandler->append($httpFixture);
 
-        $actual = $this->client->createFrontendToken('email', 'password');
+        $actual = $this->client->createUser('admin token', 'email', 'password');
 
         self::assertEquals($expected, $actual);
     }
