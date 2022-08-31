@@ -19,9 +19,9 @@ use Psr\Http\Message\ResponseInterface;
 use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
 use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
+use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 use SmartAssert\UsersClient\RequestBuilder;
 use SmartAssert\UsersClient\Routes;
-use SmartAssert\UsersClient\UserCreationOutcome;
 use webignition\HttpHistoryContainer\Container as HttpHistoryContainer;
 
 class ClientTest extends TestCase
@@ -160,13 +160,19 @@ class ClientTest extends TestCase
                 'httpFixture' => new Response(200, ['content-type' => 'application/json'], '1'),
                 'expectedExceptionClass' => InvalidResponseDataException::class,
             ],
+            'already exists' => [
+                'httpFixture' => new Response(409, ['content-type' => 'application/json'], '1'),
+                'expectedExceptionClass' => UserAlreadyExistsException::class,
+            ],
         ];
     }
 
     /**
-     * @dataProvider createSuccessDataProvider
+     * @param array<mixed> $expected
+     *
+     * @dataProvider createUserSuccessDataProvider
      */
-    public function testCreateSuccess(ResponseInterface $httpFixture, UserCreationOutcome $expected): void
+    public function testCreateUserSuccess(ResponseInterface $httpFixture, array $expected): void
     {
         $this->mockHandler->append($httpFixture);
 
@@ -178,7 +184,7 @@ class ClientTest extends TestCase
     /**
      * @return array<mixed>
      */
-    public function createSuccessDataProvider(): array
+    public function createUserSuccessDataProvider(): array
     {
         return [
             'created' => [
@@ -192,36 +198,12 @@ class ClientTest extends TestCase
                         ],
                     ])
                 ),
-                'expected' => new UserCreationOutcome(
-                    true,
-                    [
-                        'user' => [
-                            'key1' => 'value1',
-                            'key2' => 'value2',
-                        ],
-                    ]
-                ),
-            ],
-            'already exists' => [
-                'httpFixture' => new Response(
-                    409,
-                    ['content-type' => 'application/json'],
-                    (string) json_encode([
-                        'user' => [
-                            'key3' => 'value3',
-                            'key4' => 'value4',
-                        ],
-                    ])
-                ),
-                'expected' => new UserCreationOutcome(
-                    false,
-                    [
-                        'user' => [
-                            'key3' => 'value3',
-                            'key4' => 'value4',
-                        ],
-                    ]
-                ),
+                'expected' => [
+                    'user' => [
+                        'key1' => 'value1',
+                        'key2' => 'value2',
+                    ],
+                ],
             ],
         ];
     }
