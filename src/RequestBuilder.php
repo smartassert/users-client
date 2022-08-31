@@ -15,9 +15,9 @@ class RequestBuilder
     private RequestInterface $request;
 
     public function __construct(
-        private RequestFactoryInterface $requestFactory,
-        private string $authorizationHeaderName = self::DEFAULT_AUTHORIZATION_HEADER_NAME,
-        private string $authorizationValuePrefix = self::DEFAULT_AUTHORIZATION_VALUE_PREFIX,
+        private readonly RequestFactoryInterface $requestFactory,
+        private readonly string $authorizationHeaderName = self::DEFAULT_AUTHORIZATION_HEADER_NAME,
+        private readonly string $authorizationValuePrefix = self::DEFAULT_AUTHORIZATION_VALUE_PREFIX,
     ) {
     }
 

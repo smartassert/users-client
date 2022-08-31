@@ -10,9 +10,9 @@ use Psr\Http\Client\ClientInterface as HttpClientInterface;
 class Client
 {
     public function __construct(
-        private RequestBuilder $requestBuilder,
-        private HttpClientInterface $httpClient,
-        private Routes $routes,
+        private readonly RequestBuilder $requestBuilder,
+        private readonly HttpClientInterface $httpClient,
+        private readonly Routes $routes,
     ) {
     }
 
