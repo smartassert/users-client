@@ -13,6 +13,7 @@ use GuzzleHttp\Psr7\HttpFactory;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\UsersClient\Client;
@@ -57,6 +58,15 @@ class ClientTest extends TestCase
         );
     }
 
+    public function testVerifyApiTokenThrowsClientExceptionInterface(): void
+    {
+        $this->mockHandler->append(new ConnectException('Exception message', new Request('GET', '/')));
+
+        $this->expectException(ClientExceptionInterface::class);
+
+        $this->client->verifyApiToken('token');
+    }
+
     /**
      * @dataProvider verifyDataProvider
      */
@@ -98,12 +108,6 @@ class ClientTest extends TestCase
             'unverified, HTTP 500' => [
                 'userToken' => self::USER_TOKEN,
                 'userServiceResponse' => new Response(500),
-                'expectedAuthorizationHeader' => $expectedAuthorizationHeader,
-                'expectedReturnValue' => null,
-            ],
-            'unverified, curl 28 (connection timeout)' => [
-                'userToken' => self::USER_TOKEN,
-                'userServiceFoo' => new ConnectException('Exception message', new Request('GET', '/')),
                 'expectedAuthorizationHeader' => $expectedAuthorizationHeader,
                 'expectedReturnValue' => null,
             ],

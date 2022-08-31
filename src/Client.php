@@ -18,21 +18,20 @@ class Client
     ) {
     }
 
+    /**
+     * @throws ClientExceptionInterface
+     */
     public function verifyApiToken(string $token): ?string
     {
         $request = $this->requestFactory->createRequest('GET', $this->routes->getVerifyApiTokenUrl());
         $request = $this->requestBuilder->addJwtAuthorizationHeader($request, $token);
 
-        try {
-            $response = $this->httpClient->sendRequest($request);
+        $response = $this->httpClient->sendRequest($request);
 
-            if (200 !== $response->getStatusCode()) {
-                return null;
-            }
-
-            return $response->getBody()->getContents();
-        } catch (ClientExceptionInterface) {
+        if (200 !== $response->getStatusCode()) {
             return null;
         }
+
+        return $response->getBody()->getContents();
     }
 }
