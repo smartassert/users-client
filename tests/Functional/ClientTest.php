@@ -10,8 +10,8 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\HttpFactory;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
-use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -22,8 +22,6 @@ use webignition\HttpHistoryContainer\Container as HttpHistoryContainer;
 
 class ClientTest extends TestCase
 {
-    use MockeryPHPUnitIntegration;
-
     private const USER_TOKEN =
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' .
         'eyJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJzdWIiOiIwMUZQWkdIQUc2NUUwTjlBUldHNlkxUkgzNCIsImF1ZCI6WyJhcGkiXX0.' .
@@ -106,7 +104,7 @@ class ClientTest extends TestCase
             ],
             'unverified, curl 28 (connection timeout)' => [
                 'userToken' => self::USER_TOKEN,
-                'userServiceResponse' => \Mockery::mock(ConnectException::class),
+                'userServiceFoo' => new ConnectException('Exception message', new Request('GET', '/')),
                 'expectedAuthorizationHeader' => $expectedAuthorizationHeader,
                 'expectedReturnValue' => null,
             ],
