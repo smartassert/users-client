@@ -15,8 +15,6 @@ use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 
 class CreateUserTest extends AbstractClientTest
 {
-    use CreateDefaultHandlerStackTrait;
-
     /**
      * @dataProvider networkErrorExceptionDataProvider
      * @dataProvider invalidJsonResponseExceptionDataProvider

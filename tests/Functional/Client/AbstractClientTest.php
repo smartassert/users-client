@@ -39,5 +39,8 @@ abstract class AbstractClientTest extends TestCase
         );
     }
 
-    abstract protected function createHandlerStack(): HandlerStack;
+    protected function createHandlerStack(): HandlerStack
+    {
+        return HandlerStack::create($this->mockHandler);
+    }
 }

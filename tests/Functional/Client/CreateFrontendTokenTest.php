@@ -14,8 +14,6 @@ use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
 
 class CreateFrontendTokenTest extends AbstractClientTest
 {
-    use CreateDefaultHandlerStackTrait;
-
     /**
      * @dataProvider networkErrorExceptionDataProvider
      * @dataProvider invalidJsonResponseExceptionDataProvider

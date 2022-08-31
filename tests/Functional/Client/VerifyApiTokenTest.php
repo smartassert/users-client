@@ -96,7 +96,7 @@ class VerifyApiTokenTest extends AbstractClientTest
 
     protected function createHandlerStack(): HandlerStack
     {
-        $handlerStack = HandlerStack::create($this->mockHandler);
+        $handlerStack = parent::createHandlerStack();
         $handlerStack
             ->push(Middleware::history($this->httpHistoryContainer))
         ;
