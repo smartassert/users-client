@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace SmartAssert\UsersClient\Tests\Functional\Client;
 
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
 use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
+use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
 
 class CreateFrontendTokenTest extends AbstractClientTest
 {
+    use NetworkErrorExceptionDataProviderTrait;
+
     /**
      * @dataProvider networkErrorExceptionDataProvider
      * @dataProvider invalidJsonResponseExceptionDataProvider
@@ -43,19 +44,6 @@ class CreateFrontendTokenTest extends AbstractClientTest
         $actual = $this->client->createFrontendToken('email', 'password');
 
         self::assertEquals($expected, $actual);
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function networkErrorExceptionDataProvider(): array
-    {
-        return [
-            'network error' => [
-                'httpFixture' => new ConnectException('Exception message', new Request('GET', '/')),
-                'expectedExceptionClass' => ClientExceptionInterface::class,
-            ],
-        ];
     }
 
     /**
