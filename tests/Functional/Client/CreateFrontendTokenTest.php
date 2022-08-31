@@ -13,7 +13,7 @@ use Psr\Http\Message\ResponseInterface;
 use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
 use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
 
-class ClientTest extends AbstractClientTest
+class CreateFrontendTokenTest extends AbstractClientTest
 {
     /**
      * @dataProvider networkErrorExceptionDataProvider
