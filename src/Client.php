@@ -12,6 +12,7 @@ use Psr\Http\Message\StreamFactoryInterface;
 use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
 use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
+use SmartAssert\UsersClient\Model\ApiKeyCollection;
 
 class Client
 {
@@ -21,6 +22,7 @@ class Client
         private readonly RequestBuilder $requestBuilder,
         private readonly HttpClientInterface $httpClient,
         private readonly Routes $routes,
+        private readonly ApiKeyCollectionFactory $apiKeyCollectionFactory,
     ) {
     }
 
@@ -95,18 +97,17 @@ class Client
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
-     *
-     * @return array<mixed>
      */
-    public function listUserApiKeys(string $token): array
+    public function listUserApiKeys(string $token): ApiKeyCollection
     {
         $request = $this->requestFactory
             ->createRequest('GET', $this->routes->getListUserApiKeysUrl())
         ;
 
         $request = $this->requestBuilder->addJwtAuthorizationHeader($request, $token);
+        $responseData = $this->getJsonResponseData($this->httpClient->sendRequest($request));
 
-        return $this->getJsonResponseData($this->httpClient->sendRequest($request));
+        return $this->apiKeyCollectionFactory->fromArray($responseData);
     }
 
     /**

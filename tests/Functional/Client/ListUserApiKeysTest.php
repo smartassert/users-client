@@ -10,6 +10,8 @@ use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use SmartAssert\UsersClient\Model\ApiKey;
+use SmartAssert\UsersClient\Model\ApiKeyCollection;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\InvalidJsonResponseExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\GetJwtTokenTrait;
@@ -50,14 +52,12 @@ class ListUserApiKeysTest extends AbstractClientTest
     }
 
     /**
-     * @param array<mixed> $expected
-     *
      * @dataProvider listApiKeysSuccessDataProvider
      */
     public function testListApiKeySuccess(
         string $token,
         ResponseInterface $httpFixture,
-        array $expected,
+        ApiKeyCollection $expected,
         string $expectedAuthorizationHeader
     ): void {
         $this->mockHandler->append($httpFixture);
@@ -81,30 +81,7 @@ class ListUserApiKeysTest extends AbstractClientTest
     public function listApiKeysSuccessDataProvider(): array
     {
         $token = $this->getJwtToken();
-
         $expectedAuthorizationHeader = 'Bearer ' . $token;
-
-        $singleApiKeyResponseData = [
-            [
-                'label' => null,
-                'key' => md5((string) rand()),
-            ],
-        ];
-
-        $multipleApiKeyResponseData = [
-            [
-                'label' => null,
-                'key' => md5((string) rand()),
-            ],
-            [
-                'label' => 'user defined label 1',
-                'key' => md5((string) rand()),
-            ],
-            [
-                'label' => 'user defined label 2',
-                'key' => md5((string) rand()),
-            ],
-        ];
 
         return [
             'single' => [
@@ -112,9 +89,16 @@ class ListUserApiKeysTest extends AbstractClientTest
                 'httpFixture' => new Response(
                     200,
                     ['content-type' => 'application/json'],
-                    (string) json_encode($singleApiKeyResponseData)
+                    (string) json_encode([
+                        [
+                            'label' => null,
+                            'key' => 'key1',
+                        ],
+                    ])
                 ),
-                'expected' => $singleApiKeyResponseData,
+                'expected' => new ApiKeyCollection([
+                    new ApiKey(null, 'key1'),
+                ]),
                 'expectedAuthorizationHeader' => $expectedAuthorizationHeader,
             ],
             'multiple' => [
@@ -122,9 +106,26 @@ class ListUserApiKeysTest extends AbstractClientTest
                 'httpFixture' => new Response(
                     200,
                     ['content-type' => 'application/json'],
-                    (string) json_encode($multipleApiKeyResponseData)
+                    (string) json_encode([
+                        [
+                            'label' => null,
+                            'key' => 'key2',
+                        ],
+                        [
+                            'label' => 'user defined label 1',
+                            'key' => 'key3',
+                        ],
+                        [
+                            'label' => 'user defined label 2',
+                            'key' => 'key4',
+                        ],
+                    ])
                 ),
-                'expected' => $multipleApiKeyResponseData,
+                'expected' => new ApiKeyCollection([
+                    new ApiKey(null, 'key2'),
+                    new ApiKey('user defined label 1', 'key3'),
+                    new ApiKey('user defined label 2', 'key4'),
+                ]),
                 'expectedAuthorizationHeader' => $expectedAuthorizationHeader,
             ],
         ];
