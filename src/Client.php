@@ -145,6 +145,23 @@ class Client
     }
 
     /**
+     * @throws ClientExceptionInterface
+     * @throws InvalidResponseContentException
+     * @throws InvalidResponseDataException
+     *
+     * @return array<mixed>
+     */
+    public function createApiToken(string $apiKey): array
+    {
+        $request = $this->requestFactory
+            ->createRequest('POST', $this->routes->getCreateApiTokenUrl())
+            ->withAddedHeader('Authorization', $apiKey)
+        ;
+
+        return $this->getJsonResponseData($this->httpClient->sendRequest($request));
+    }
+
+    /**
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      *
