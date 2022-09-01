@@ -9,6 +9,8 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\HttpFactory;
 use PHPUnit\Framework\TestCase;
+use SmartAssert\UsersClient\ApiKeyCollectionFactory;
+use SmartAssert\UsersClient\ApiKeyFactory;
 use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\RequestBuilder;
 use SmartAssert\UsersClient\Routes;
@@ -35,6 +37,9 @@ abstract class AbstractClientTest extends TestCase
             ]),
             new Routes(
                 'https://users.example.com',
+            ),
+            new ApiKeyCollectionFactory(
+                new ApiKeyFactory(),
             )
         );
     }
