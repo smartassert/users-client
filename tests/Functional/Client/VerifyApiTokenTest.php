@@ -12,16 +12,14 @@ use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use SmartAssert\UsersClient\Tests\Functional\GetJwtTokenTrait;
+use SmartAssert\UsersClient\Tests\Functional\GetUserIdTrait;
 use webignition\HttpHistoryContainer\Container as HttpHistoryContainer;
 
 class VerifyApiTokenTest extends AbstractClientTest
 {
-    private const USER_TOKEN =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' .
-        'eyJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJzdWIiOiIwMUZQWkdIQUc2NUUwTjlBUldHNlkxUkgzNCIsImF1ZCI6WyJhcGkiXX0.' .
-        'hMGV5MJexFIDIuh5gsqkhJ7C3SDQGnOW7sZVS5b6X08';
-
-    private const USER_ID = '01FPZGHAG65E0N9ARWG6Y1RH34';
+    use GetJwtTokenTrait;
+    use GetUserIdTrait;
 
     private HttpHistoryContainer $httpHistoryContainer;
 
@@ -70,26 +68,29 @@ class VerifyApiTokenTest extends AbstractClientTest
      */
     public function verifyDataProvider(): array
     {
-        $expectedAuthorizationHeader = 'Bearer ' . self::USER_TOKEN;
+        $token = $this->getJwtToken();
+        $userId = $this->getUserId();
+
+        $expectedAuthorizationHeader = 'Bearer ' . $token;
 
         return [
             'unverified, HTTP 401' => [
-                'userToken' => self::USER_TOKEN,
+                'userToken' => $token,
                 'userServiceResponse' => new Response(401),
                 'expectedAuthorizationHeader' => $expectedAuthorizationHeader,
                 'expectedReturnValue' => null,
             ],
             'unverified, HTTP 500' => [
-                'userToken' => self::USER_TOKEN,
+                'userToken' => $token,
                 'userServiceResponse' => new Response(500),
                 'expectedAuthorizationHeader' => $expectedAuthorizationHeader,
                 'expectedReturnValue' => null,
             ],
             'verified' => [
-                'userToken' => self::USER_TOKEN,
-                'userServiceResponse' => new Response(200, [], self::USER_ID),
+                'userToken' => $token,
+                'userServiceResponse' => new Response(200, [], $userId),
                 'expectedAuthorizationHeader' => $expectedAuthorizationHeader,
-                'expectedReturnValue' => self::USER_ID,
+                'expectedReturnValue' => $userId,
             ],
         ];
     }

@@ -92,6 +92,24 @@ class Client
     }
 
     /**
+     * @throws ClientExceptionInterface
+     * @throws InvalidResponseContentException
+     * @throws InvalidResponseDataException
+     *
+     * @return array<mixed>
+     */
+    public function listUserApiKeys(string $token): array
+    {
+        $request = $this->requestFactory
+            ->createRequest('GET', $this->routes->getListUserApiKeysUrl())
+        ;
+
+        $request = $this->requestBuilder->addJwtAuthorizationHeader($request, $token);
+
+        return $this->getJsonResponseData($this->httpClient->sendRequest($request));
+    }
+
+    /**
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      *

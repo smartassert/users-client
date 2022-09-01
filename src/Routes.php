@@ -9,6 +9,7 @@ class Routes
     public const DEFAULT_VERIFY_API_TOKEN_PATH = '/api/token/verify';
     public const DEFAULT_CREATE_USER_PATH = '/admin/user/create';
     public const DEFAULT_CREATE_FRONTEND_TOKEN_PATH = '/frontend/token/create';
+    public const DEFAULT_LIST_USER_API_KEYS_PATH = '/frontend/apikey/list';
 
     /**
      * @param non-empty-string $baseUrl
@@ -21,6 +22,7 @@ class Routes
         private readonly string $verifyApiTokenPath = self::DEFAULT_VERIFY_API_TOKEN_PATH,
         private readonly string $createUserPath = self::DEFAULT_CREATE_USER_PATH,
         private readonly string $createFrontendTokenPath = self::DEFAULT_CREATE_FRONTEND_TOKEN_PATH,
+        private readonly string $listUserApiKeyPath = self::DEFAULT_LIST_USER_API_KEYS_PATH,
     ) {
     }
 
@@ -46,5 +48,13 @@ class Routes
     public function getCreateFrontendTokenUrl(): string
     {
         return $this->baseUrl . $this->createFrontendTokenPath;
+    }
+
+    /**
+     * @return non-empty-string
+     */
+    public function getListUserApiKeysUrl(): string
+    {
+        return $this->baseUrl . $this->listUserApiKeyPath;
     }
 }
