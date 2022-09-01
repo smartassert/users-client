@@ -13,6 +13,7 @@ class Routes
     public const DEFAULT_VERIFY_FRONTEND_TOKEN_PATH = '/frontend/token/verify';
     public const DEFAULT_REFRESH_FRONTEND_TOKEN_PATH = '/frontend/token/refresh';
     public const DEFAULT_CREATE_API_TOKEN_PATH = '/api/token/create';
+    public const DEFAULT_REVOKE_FRONTEND_REFRESH_TOKEN_PATH = '/admin/frontend/refresh-token/revoke';
 
     /**
      * @param non-empty-string $baseUrl
@@ -29,6 +30,7 @@ class Routes
         private readonly string $verifyFrontendTokenPath = self::DEFAULT_VERIFY_FRONTEND_TOKEN_PATH,
         private readonly string $refreshFrontendTokenPath = self::DEFAULT_REFRESH_FRONTEND_TOKEN_PATH,
         private readonly string $createApiTokenPath = self::DEFAULT_CREATE_API_TOKEN_PATH,
+        private readonly string $revokeFrontendRefreshTokenPath = self::DEFAULT_REVOKE_FRONTEND_REFRESH_TOKEN_PATH,
     ) {
     }
 
@@ -86,5 +88,13 @@ class Routes
     public function getCreateApiTokenUrl(): string
     {
         return $this->baseUrl . $this->createApiTokenPath;
+    }
+
+    /**
+     * @return non-empty-string
+     */
+    public function getRevokeFrontendRefreshTokenUrl(): string
+    {
+        return $this->baseUrl . $this->revokeFrontendRefreshTokenPath;
     }
 }

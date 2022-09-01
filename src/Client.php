@@ -162,6 +162,23 @@ class Client
     }
 
     /**
+     * @throws ClientExceptionInterface
+     */
+    public function revokeFrontendRefreshToken(string $adminToken, string $userId): void
+    {
+        $request = $this->requestFactory
+            ->createRequest('POST', $this->routes->getRevokeFrontendRefreshTokenUrl())
+            ->withAddedHeader('Authorization', $adminToken)
+            ->withAddedHeader('content-type', 'application/x-www-form-urlencoded')
+            ->withBody($this->streamFactory->createStream(http_build_query([
+                'id' => $userId,
+            ])))
+        ;
+
+        $this->httpClient->sendRequest($request);
+    }
+
+    /**
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      *
