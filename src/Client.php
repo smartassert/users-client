@@ -125,6 +125,26 @@ class Client
     }
 
     /**
+     * @throws ClientExceptionInterface
+     * @throws InvalidResponseContentException
+     * @throws InvalidResponseDataException
+     *
+     * @return array<mixed>
+     */
+    public function refreshFrontendToken(string $refreshToken): array
+    {
+        $request = $this->requestFactory
+            ->createRequest('POST', $this->routes->getRefreshFrontendTokenUrl())
+            ->withAddedHeader('content-type', 'application/json')
+            ->withBody($this->streamFactory->createStream((string) json_encode([
+                'refresh_token' => $refreshToken,
+            ])))
+        ;
+
+        return $this->getJsonResponseData($this->httpClient->sendRequest($request));
+    }
+
+    /**
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      *
