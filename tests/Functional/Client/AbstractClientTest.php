@@ -14,6 +14,7 @@ use Psr\Http\Message\RequestInterface;
 use SmartAssert\UsersClient\ApiKeyCollectionFactory;
 use SmartAssert\UsersClient\ApiKeyFactory;
 use SmartAssert\UsersClient\Client;
+use SmartAssert\UsersClient\FrontendTokenFactory;
 use SmartAssert\UsersClient\RequestBuilder;
 use SmartAssert\UsersClient\Routes;
 use webignition\HttpHistoryContainer\Container as HttpHistoryContainer;
@@ -49,7 +50,8 @@ abstract class AbstractClientTest extends TestCase
             ),
             new ApiKeyCollectionFactory(
                 new ApiKeyFactory(),
-            )
+            ),
+            new FrontendTokenFactory(),
         );
     }
 
