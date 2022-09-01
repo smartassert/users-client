@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace SmartAssert\UsersClient\Tests\Functional\Client;
 
+use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
+use SmartAssert\UsersClient\Model\FrontendToken;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\InvalidJsonResponseExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\ValidJsonResponseDataProviderTrait;
@@ -34,11 +36,9 @@ class CreateFrontendTokenTest extends AbstractClientTest
     }
 
     /**
-     * @param array<mixed> $expected
-     *
-     * @dataProvider validJsonResponseDataProvider
+     * @dataProvider createFrontendTokenSuccessDataProvider
      */
-    public function testCreateFrontendTokenSuccess(ResponseInterface $httpFixture, array $expected): void
+    public function testCreateFrontendTokenSuccess(ResponseInterface $httpFixture, FrontendToken $expected): void
     {
         $this->mockHandler->append($httpFixture);
 
@@ -55,5 +55,30 @@ class CreateFrontendTokenTest extends AbstractClientTest
             json_encode(['username' => $email, 'password' => $password]),
             $request->getBody()->getContents()
         );
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function createFrontendTokenSuccessDataProvider(): array
+    {
+        $token = md5((string) rand());
+        $refreshToken = md5((string) rand());
+
+        return [
+            'created' => [
+                'httpFixture' => new Response(
+                    200,
+                    [
+                        'content-type' => 'application/json',
+                    ],
+                    (string) json_encode([
+                        'token' => $token,
+                        'refresh_token' => $refreshToken,
+                    ])
+                ),
+                'expected' => new FrontendToken($token, $refreshToken),
+            ],
+        ];
     }
 }
