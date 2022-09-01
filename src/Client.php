@@ -31,16 +31,30 @@ class Client
      */
     public function verifyApiToken(string $token): ?string
     {
-        $request = $this->requestFactory->createRequest('GET', $this->routes->getVerifyApiTokenUrl());
-        $request = $this->requestBuilder->addJwtAuthorizationHeader($request, $token);
-
-        $response = $this->httpClient->sendRequest($request);
-
+        $response = $this->makeGetRequestWithJwtAuthorization($token, $this->routes->getVerifyApiTokenUrl());
         if (200 !== $response->getStatusCode()) {
             return null;
         }
 
         return $response->getBody()->getContents();
+    }
+
+    public function verifyFrontendToken(string $token): bool
+    {
+        $response = $this->makeGetRequestWithJwtAuthorization($token, $this->routes->getVerifyFrontendTokenUrl());
+
+        return 200 === $response->getStatusCode();
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     */
+    public function makeGetRequestWithJwtAuthorization(string $token, string $url): ResponseInterface
+    {
+        $request = $this->requestFactory->createRequest('GET', $this->routes->getVerifyFrontendTokenUrl());
+        $request = $this->requestBuilder->addJwtAuthorizationHeader($request, $token);
+
+        return $this->httpClient->sendRequest($request);
     }
 
     /**
