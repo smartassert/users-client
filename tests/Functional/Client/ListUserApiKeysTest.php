@@ -4,35 +4,18 @@ declare(strict_types=1);
 
 namespace SmartAssert\UsersClient\Tests\Functional\Client;
 
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientExceptionInterface;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\UsersClient\Model\ApiKey;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\InvalidJsonResponseExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
-use SmartAssert\UsersClient\Tests\Functional\GetJwtTokenTrait;
-use SmartAssert\UsersClient\Tests\Functional\GetUserIdTrait;
-use webignition\HttpHistoryContainer\Container as HttpHistoryContainer;
 
 class ListUserApiKeysTest extends AbstractClientTest
 {
-    use GetJwtTokenTrait;
-    use GetUserIdTrait;
     use NetworkErrorExceptionDataProviderTrait;
     use InvalidJsonResponseExceptionDataProviderTrait;
-
-    private HttpHistoryContainer $httpHistoryContainer;
-
-    protected function setUp(): void
-    {
-        $this->httpHistoryContainer = new HttpHistoryContainer();
-
-        parent::setUp();
-    }
 
     /**
      * @dataProvider networkErrorExceptionDataProvider
@@ -54,25 +37,18 @@ class ListUserApiKeysTest extends AbstractClientTest
     /**
      * @dataProvider listApiKeysSuccessDataProvider
      */
-    public function testListApiKeySuccess(
-        string $token,
-        ResponseInterface $httpFixture,
-        ApiKeyCollection $expected,
-        string $expectedAuthorizationHeader
-    ): void {
+    public function testListApiKeySuccess(ResponseInterface $httpFixture, ApiKeyCollection $expected): void
+    {
+        $token = md5((string) rand());
+
         $this->mockHandler->append($httpFixture);
 
         $actual = $this->client->listUserApiKeys($token);
         self::assertEquals($expected, $actual);
 
-        $sentRequest = $this->httpHistoryContainer->getTransactions()->getRequests()->getLast();
-        self::assertInstanceOf(RequestInterface::class, $sentRequest);
-        \assert($sentRequest instanceof RequestInterface);
-
-        self::assertSame('GET', $sentRequest->getMethod());
-
-        $authorizationHeader = $sentRequest->getHeaderLine('authorization');
-        self::assertSame($expectedAuthorizationHeader, $authorizationHeader);
+        $request = $this->getLastRequest();
+        self::assertSame('GET', $request->getMethod());
+        self::assertSame('Bearer ' . $token, $request->getHeaderLine('authorization'));
     }
 
     /**
@@ -80,12 +56,8 @@ class ListUserApiKeysTest extends AbstractClientTest
      */
     public function listApiKeysSuccessDataProvider(): array
     {
-        $token = $this->getJwtToken();
-        $expectedAuthorizationHeader = 'Bearer ' . $token;
-
         return [
             'single' => [
-                'userToken' => $token,
                 'httpFixture' => new Response(
                     200,
                     ['content-type' => 'application/json'],
@@ -99,10 +71,8 @@ class ListUserApiKeysTest extends AbstractClientTest
                 'expected' => new ApiKeyCollection([
                     new ApiKey(null, 'key1'),
                 ]),
-                'expectedAuthorizationHeader' => $expectedAuthorizationHeader,
             ],
             'multiple' => [
-                'userToken' => $token,
                 'httpFixture' => new Response(
                     200,
                     ['content-type' => 'application/json'],
@@ -126,18 +96,7 @@ class ListUserApiKeysTest extends AbstractClientTest
                     new ApiKey('user defined label 1', 'key3'),
                     new ApiKey('user defined label 2', 'key4'),
                 ]),
-                'expectedAuthorizationHeader' => $expectedAuthorizationHeader,
             ],
         ];
-    }
-
-    protected function createHandlerStack(): HandlerStack
-    {
-        $handlerStack = parent::createHandlerStack();
-        $handlerStack
-            ->push(Middleware::history($this->httpHistoryContainer))
-        ;
-
-        return $handlerStack;
     }
 }

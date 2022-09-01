@@ -42,8 +42,18 @@ class CreateFrontendTokenTest extends AbstractClientTest
     {
         $this->mockHandler->append($httpFixture);
 
-        $actual = $this->client->createFrontendToken('email', 'password');
+        $email = 'email value';
+        $password = 'password value';
 
+        $actual = $this->client->createFrontendToken($email, $password);
         self::assertEquals($expected, $actual);
+
+        $request = $this->getLastRequest();
+        self::assertSame('POST', $request->getMethod());
+        self::assertSame('application/json', $request->getHeaderLine('content-type'));
+        self::assertSame(
+            json_encode(['username' => $email, 'password' => $password]),
+            $request->getBody()->getContents()
+        );
     }
 }

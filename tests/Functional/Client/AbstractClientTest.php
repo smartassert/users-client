@@ -7,18 +7,22 @@ namespace SmartAssert\UsersClient\Tests\Functional\Client;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\HttpFactory;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
 use SmartAssert\UsersClient\ApiKeyCollectionFactory;
 use SmartAssert\UsersClient\ApiKeyFactory;
 use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\RequestBuilder;
 use SmartAssert\UsersClient\Routes;
+use webignition\HttpHistoryContainer\Container as HttpHistoryContainer;
 
 abstract class AbstractClientTest extends TestCase
 {
     protected MockHandler $mockHandler;
     protected Client $client;
+    private HttpHistoryContainer $httpHistoryContainer;
 
     protected function setUp(): void
     {
@@ -28,12 +32,17 @@ abstract class AbstractClientTest extends TestCase
 
         $httpFactory = new HttpFactory();
 
+        $handlerStack = HandlerStack::create($this->mockHandler);
+
+        $this->httpHistoryContainer = new HttpHistoryContainer();
+        $handlerStack->push(Middleware::history($this->httpHistoryContainer));
+
         $this->client = new Client(
             $httpFactory,
             $httpFactory,
             new RequestBuilder(),
             new HttpClient([
-                'handler' => $this->createHandlerStack(),
+                'handler' => $handlerStack,
             ]),
             new Routes(
                 'https://users.example.com',
@@ -44,8 +53,11 @@ abstract class AbstractClientTest extends TestCase
         );
     }
 
-    protected function createHandlerStack(): HandlerStack
+    protected function getLastRequest(): RequestInterface
     {
-        return HandlerStack::create($this->mockHandler);
+        $request = $this->httpHistoryContainer->getTransactions()->getRequests()->getLast();
+        \assert($request instanceof RequestInterface);
+
+        return $request;
     }
 }
