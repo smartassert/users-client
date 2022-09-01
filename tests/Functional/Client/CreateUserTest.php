@@ -58,8 +58,21 @@ class CreateUserTest extends AbstractClientTest
     {
         $this->mockHandler->append($httpFixture);
 
-        $actual = $this->client->createUser('admin token', 'email', 'password');
+        $email = 'email value';
+        $password = 'password value';
+        $adminToken = 'admin token';
+
+        $actual = $this->client->createUser($adminToken, $email, $password);
 
         self::assertEquals($expected, $actual);
+
+        $request = $this->getLastRequest();
+        self::assertSame('POST', $request->getMethod());
+        self::assertSame('application/x-www-form-urlencoded', $request->getHeaderLine('content-type'));
+        self::assertSame($adminToken, $request->getHeaderLine('authorization'));
+        self::assertSame(
+            http_build_query(['email' => $email, 'password' => $password]),
+            $request->getBody()->getContents()
+        );
     }
 }
