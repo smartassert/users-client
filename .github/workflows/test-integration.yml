@@ -27,6 +27,4 @@ jobs:
         run: composer install --no-progress --prefer-dist --optimize-autoloader
 
       - name: Setup integration environment
-        env:
-          NO_TTY: "true"
         run: composer integration-setup
