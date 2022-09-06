@@ -60,12 +60,12 @@ class Client
     }
 
     /**
+     * @return array<mixed>
+     *
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      * @throws UserAlreadyExistsException
-     *
-     * @return array<mixed>
      */
     public function createUser(string $adminToken, string $email, string $password): array
     {
@@ -127,11 +127,11 @@ class Client
     }
 
     /**
+     * @return array<mixed>
+     *
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
-     *
-     * @return array<mixed>
      */
     public function refreshFrontendToken(string $refreshToken): array
     {
@@ -147,11 +147,11 @@ class Client
     }
 
     /**
+     * @return array<mixed>
+     *
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
-     *
-     * @return array<mixed>
      */
     public function createApiToken(string $apiKey): array
     {
@@ -181,10 +181,10 @@ class Client
     }
 
     /**
+     * @return array<mixed>
+     *
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
-     *
-     * @return array<mixed>
      */
     private function getJsonResponseData(ResponseInterface $response): array
     {
