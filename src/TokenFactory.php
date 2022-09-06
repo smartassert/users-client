@@ -4,22 +4,20 @@ declare(strict_types=1);
 
 namespace SmartAssert\UsersClient;
 
-use SmartAssert\UsersClient\Model\FrontendToken;
+use SmartAssert\UsersClient\Model\Token;
 
-class FrontendTokenFactory
+class TokenFactory
 {
     private const KEY_TOKEN = 'token';
-    private const KEY_REFRESH_TOKEN = 'refresh_token';
 
     /**
      * @param array<mixed> $data
      */
-    public function fromArray(array $data): ?FrontendToken
+    public function fromArray(array $data): ?Token
     {
         $token = $this->getNonEmptyStringValue(self::KEY_TOKEN, $data);
-        $refreshToken = $this->getNonEmptyStringValue(self::KEY_REFRESH_TOKEN, $data);
 
-        return null === $token || null === $refreshToken ? null : new FrontendToken($token, $refreshToken);
+        return null === $token ? null : new Token($token);
     }
 
     /**

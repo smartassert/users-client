@@ -7,7 +7,7 @@ namespace SmartAssert\UsersClient\Tests\Functional\Client;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
-use SmartAssert\UsersClient\Model\FrontendToken;
+use SmartAssert\UsersClient\Model\RefreshableToken;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\InvalidJsonResponseExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\ValidJsonResponseDataProviderTrait;
@@ -38,7 +38,7 @@ class CreateFrontendTokenTest extends AbstractClientTest
     /**
      * @dataProvider createFrontendTokenSuccessDataProvider
      */
-    public function testCreateFrontendTokenSuccess(ResponseInterface $httpFixture, FrontendToken $expected): void
+    public function testCreateFrontendTokenSuccess(ResponseInterface $httpFixture, RefreshableToken $expected): void
     {
         $this->mockHandler->append($httpFixture);
 
@@ -77,7 +77,7 @@ class CreateFrontendTokenTest extends AbstractClientTest
                         'refresh_token' => $refreshToken,
                     ])
                 ),
-                'expected' => new FrontendToken($token, $refreshToken),
+                'expected' => new RefreshableToken($token, $refreshToken),
             ],
         ];
     }

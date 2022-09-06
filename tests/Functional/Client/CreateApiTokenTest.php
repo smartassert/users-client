@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace SmartAssert\UsersClient\Tests\Functional\Client;
 
+use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
+use SmartAssert\UsersClient\Model\Token;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\InvalidJsonResponseExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\ValidJsonResponseDataProviderTrait;
@@ -34,11 +36,9 @@ class CreateApiTokenTest extends AbstractClientTest
     }
 
     /**
-     * @param array<mixed> $expected
-     *
-     * @dataProvider validJsonResponseDataProvider
+     * @dataProvider createApiTokenSuccessDataProvider
      */
-    public function testCreateApiTokenSuccess(ResponseInterface $httpFixture, array $expected): void
+    public function testCreateApiTokenSuccess(ResponseInterface $httpFixture, Token $expected): void
     {
         $this->mockHandler->append($httpFixture);
 
@@ -50,5 +50,28 @@ class CreateApiTokenTest extends AbstractClientTest
         $request = $this->getLastRequest();
         self::assertSame('POST', $request->getMethod());
         self::assertSame($apiKey, $request->getHeaderLine('authorization'));
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function createApiTokenSuccessDataProvider(): array
+    {
+        $token = md5((string) rand());
+
+        return [
+            'created' => [
+                'httpFixture' => new Response(
+                    200,
+                    [
+                        'content-type' => 'application/json',
+                    ],
+                    (string) json_encode([
+                        'token' => $token,
+                    ])
+                ),
+                'expected' => new Token($token),
+            ],
+        ];
     }
 }

@@ -13,7 +13,8 @@ use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
 use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
-use SmartAssert\UsersClient\Model\FrontendToken;
+use SmartAssert\UsersClient\Model\RefreshableToken;
+use SmartAssert\UsersClient\Model\Token;
 
 class Client
 {
@@ -24,7 +25,8 @@ class Client
         private readonly HttpClientInterface $httpClient,
         private readonly Routes $routes,
         private readonly ApiKeyCollectionFactory $apiKeyCollectionFactory,
-        private readonly FrontendTokenFactory $frontendTokenFactory,
+        private readonly RefreshableTokenFactory $frontendTokenFactory,
+        private readonly TokenFactory $apiTokenFactory,
     ) {
     }
 
@@ -93,7 +95,7 @@ class Client
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      */
-    public function createFrontendToken(string $email, string $password): ?FrontendToken
+    public function createFrontendToken(string $email, string $password): ?RefreshableToken
     {
         $request = $this->requestFactory
             ->createRequest('POST', $this->routes->getCreateFrontendTokenUrl())
@@ -147,20 +149,18 @@ class Client
     }
 
     /**
-     * @return array<mixed>
-     *
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      */
-    public function createApiToken(string $apiKey): array
+    public function createApiToken(string $apiKey): ?Token
     {
         $request = $this->requestFactory
             ->createRequest('POST', $this->routes->getCreateApiTokenUrl())
             ->withAddedHeader('Authorization', $apiKey)
         ;
 
-        return $this->getJsonResponseData($this->httpClient->sendRequest($request));
+        return $this->apiTokenFactory->fromArray($this->getJsonResponseData($this->httpClient->sendRequest($request)));
     }
 
     /**
