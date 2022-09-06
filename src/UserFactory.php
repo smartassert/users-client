@@ -11,25 +11,22 @@ class UserFactory
     private const KEY_ID = 'id';
     private const KEY_USER_IDENTIFIER = 'user-identifier';
 
+    public function __construct(
+        private readonly ArrayAccessor $arrayAccessor,
+    ) {
+    }
+
     /**
      * @param array<mixed> $data
      */
     public function fromArray(array $data): ?User
     {
-        if (!array_key_exists(self::KEY_ID, $data)) {
-            return null;
-        }
-
-        $id = $data[self::KEY_ID];
+        $id = $this->arrayAccessor->getStringValue(self::KEY_ID, $data);
         if (!is_string($id)) {
             return null;
         }
 
-        if (!array_key_exists(self::KEY_USER_IDENTIFIER, $data)) {
-            return null;
-        }
-
-        $userIdentifier = $data[self::KEY_USER_IDENTIFIER];
+        $userIdentifier = $this->arrayAccessor->getStringValue(self::KEY_USER_IDENTIFIER, $data);
         if (!is_string($userIdentifier)) {
             return null;
         }

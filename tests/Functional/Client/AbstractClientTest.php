@@ -13,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use SmartAssert\UsersClient\ApiKeyCollectionFactory;
 use SmartAssert\UsersClient\ApiKeyFactory;
+use SmartAssert\UsersClient\ArrayAccessor;
 use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\RefreshableTokenFactory;
 use SmartAssert\UsersClient\RequestBuilder;
@@ -40,6 +41,8 @@ abstract class AbstractClientTest extends TestCase
         $this->httpHistoryContainer = new HttpHistoryContainer();
         $handlerStack->push(Middleware::history($this->httpHistoryContainer));
 
+        $arrayAccessor = new ArrayAccessor();
+
         $this->client = new Client(
             $httpFactory,
             $httpFactory,
@@ -51,11 +54,11 @@ abstract class AbstractClientTest extends TestCase
                 'https://users.example.com',
             ),
             new ApiKeyCollectionFactory(
-                new ApiKeyFactory(),
+                new ApiKeyFactory($arrayAccessor),
             ),
             new RefreshableTokenFactory(),
-            new TokenFactory(),
-            new UserFactory(),
+            new TokenFactory($arrayAccessor),
+            new UserFactory($arrayAccessor),
         );
     }
 
