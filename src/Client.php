@@ -13,8 +13,8 @@ use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
 use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
-use SmartAssert\UsersClient\Model\ApiToken;
-use SmartAssert\UsersClient\Model\FrontendToken;
+use SmartAssert\UsersClient\Model\RefreshableToken;
+use SmartAssert\UsersClient\Model\Token;
 
 class Client
 {
@@ -25,8 +25,8 @@ class Client
         private readonly HttpClientInterface $httpClient,
         private readonly Routes $routes,
         private readonly ApiKeyCollectionFactory $apiKeyCollectionFactory,
-        private readonly FrontendTokenFactory $frontendTokenFactory,
-        private readonly ApiTokenFactory $apiTokenFactory,
+        private readonly RefreshableTokenFactory $frontendTokenFactory,
+        private readonly TokenFactory $apiTokenFactory,
     ) {
     }
 
@@ -95,7 +95,7 @@ class Client
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      */
-    public function createFrontendToken(string $email, string $password): ?FrontendToken
+    public function createFrontendToken(string $email, string $password): ?RefreshableToken
     {
         $request = $this->requestFactory
             ->createRequest('POST', $this->routes->getCreateFrontendTokenUrl())
@@ -153,7 +153,7 @@ class Client
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      */
-    public function createApiToken(string $apiKey): ?ApiToken
+    public function createApiToken(string $apiKey): ?Token
     {
         $request = $this->requestFactory
             ->createRequest('POST', $this->routes->getCreateApiTokenUrl())

@@ -7,7 +7,7 @@ namespace SmartAssert\UsersClient\Tests\Functional\Client;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
-use SmartAssert\UsersClient\Model\ApiToken;
+use SmartAssert\UsersClient\Model\Token;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\InvalidJsonResponseExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\ValidJsonResponseDataProviderTrait;
@@ -38,7 +38,7 @@ class CreateApiTokenTest extends AbstractClientTest
     /**
      * @dataProvider createApiTokenSuccessDataProvider
      */
-    public function testCreateApiTokenSuccess(ResponseInterface $httpFixture, ApiToken $expected): void
+    public function testCreateApiTokenSuccess(ResponseInterface $httpFixture, Token $expected): void
     {
         $this->mockHandler->append($httpFixture);
 
@@ -70,7 +70,7 @@ class CreateApiTokenTest extends AbstractClientTest
                         'token' => $token,
                     ])
                 ),
-                'expected' => new ApiToken($token),
+                'expected' => new Token($token),
             ],
         ];
     }

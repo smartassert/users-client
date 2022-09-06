@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SmartAssert\UsersClient\Model;
 
-class ApiToken
+class Token
 {
     /**
      * @param non-empty-string $token

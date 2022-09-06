@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace SmartAssert\UsersClient;
 
-use SmartAssert\UsersClient\Model\ApiToken;
+use SmartAssert\UsersClient\Model\Token;
 
-class ApiTokenFactory
+class TokenFactory
 {
     private const KEY_TOKEN = 'token';
 
     /**
      * @param array<mixed> $data
      */
-    public function fromArray(array $data): ?ApiToken
+    public function fromArray(array $data): ?Token
     {
         $token = $this->getNonEmptyStringValue(self::KEY_TOKEN, $data);
 
-        return null === $token ? null : new ApiToken($token);
+        return null === $token ? null : new Token($token);
     }
 
     /**
