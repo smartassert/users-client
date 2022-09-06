@@ -13,6 +13,7 @@ use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
 use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
+use SmartAssert\UsersClient\Model\ApiToken;
 use SmartAssert\UsersClient\Model\FrontendToken;
 
 class Client
@@ -25,6 +26,7 @@ class Client
         private readonly Routes $routes,
         private readonly ApiKeyCollectionFactory $apiKeyCollectionFactory,
         private readonly FrontendTokenFactory $frontendTokenFactory,
+        private readonly ApiTokenFactory $apiTokenFactory,
     ) {
     }
 
@@ -147,20 +149,18 @@ class Client
     }
 
     /**
-     * @return array<mixed>
-     *
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      */
-    public function createApiToken(string $apiKey): array
+    public function createApiToken(string $apiKey): ?ApiToken
     {
         $request = $this->requestFactory
             ->createRequest('POST', $this->routes->getCreateApiTokenUrl())
             ->withAddedHeader('Authorization', $apiKey)
         ;
 
-        return $this->getJsonResponseData($this->httpClient->sendRequest($request));
+        return $this->apiTokenFactory->fromArray($this->getJsonResponseData($this->httpClient->sendRequest($request)));
     }
 
     /**

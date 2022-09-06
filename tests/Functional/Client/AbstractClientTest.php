@@ -13,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use SmartAssert\UsersClient\ApiKeyCollectionFactory;
 use SmartAssert\UsersClient\ApiKeyFactory;
+use SmartAssert\UsersClient\ApiTokenFactory;
 use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\FrontendTokenFactory;
 use SmartAssert\UsersClient\RequestBuilder;
@@ -52,6 +53,7 @@ abstract class AbstractClientTest extends TestCase
                 new ApiKeyFactory(),
             ),
             new FrontendTokenFactory(),
+            new ApiTokenFactory(),
         );
     }
 
