@@ -15,6 +15,7 @@ use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
 use SmartAssert\UsersClient\Model\RefreshableToken;
 use SmartAssert\UsersClient\Model\Token;
+use SmartAssert\UsersClient\Model\User;
 
 class Client
 {
@@ -27,30 +28,28 @@ class Client
         private readonly ApiKeyCollectionFactory $apiKeyCollectionFactory,
         private readonly RefreshableTokenFactory $frontendTokenFactory,
         private readonly TokenFactory $apiTokenFactory,
+        private readonly UserFactory $userFactory,
     ) {
     }
 
     /**
      * @throws ClientExceptionInterface
+     * @throws InvalidResponseContentException
+     * @throws InvalidResponseDataException
      */
-    public function verifyApiToken(Token $token): ?string
+    public function verifyApiToken(Token $token): ?User
     {
-        $response = $this->makeGetRequestWithJwtAuthorization($token, $this->routes->getVerifyApiTokenUrl());
-        if (200 !== $response->getStatusCode()) {
-            return null;
-        }
-
-        return $response->getBody()->getContents();
+        return $this->makeTokenVerificationRequest($token, $this->routes->getVerifyApiTokenUrl());
     }
 
     /**
      * @throws ClientExceptionInterface
+     * @throws InvalidResponseContentException
+     * @throws InvalidResponseDataException
      */
-    public function verifyFrontendToken(Token $token): bool
+    public function verifyFrontendToken(Token $token): ?User
     {
-        $response = $this->makeGetRequestWithJwtAuthorization($token, $this->routes->getVerifyFrontendTokenUrl());
-
-        return 200 === $response->getStatusCode();
+        return $this->makeTokenVerificationRequest($token, $this->routes->getVerifyFrontendTokenUrl());
     }
 
     /**
@@ -181,6 +180,21 @@ class Client
         ;
 
         $this->httpClient->sendRequest($request);
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     * @throws InvalidResponseContentException
+     * @throws InvalidResponseDataException
+     */
+    private function makeTokenVerificationRequest(Token $token, string $url): ?User
+    {
+        $response = $this->makeGetRequestWithJwtAuthorization($token, $url);
+        if (200 !== $response->getStatusCode()) {
+            return null;
+        }
+
+        return $this->userFactory->fromArray($this->getJsonResponseData($response));
     }
 
     /**
