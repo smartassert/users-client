@@ -9,6 +9,7 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
+use SmartAssert\UsersClient\Model\Token;
 
 class VerifyFrontendTokenTest extends AbstractClientTest
 {
@@ -18,7 +19,7 @@ class VerifyFrontendTokenTest extends AbstractClientTest
 
         $this->expectException(ClientExceptionInterface::class);
 
-        $this->client->verifyFrontendToken('token');
+        $this->client->verifyFrontendToken(new Token('token'));
     }
 
     /**
@@ -26,7 +27,7 @@ class VerifyFrontendTokenTest extends AbstractClientTest
      */
     public function testVerifyFrontendToken(ResponseInterface $httpFixture, bool $expected): void
     {
-        $token = md5((string) rand());
+        $token = new Token(md5((string) rand()));
 
         $this->mockHandler->append($httpFixture);
 
@@ -35,7 +36,7 @@ class VerifyFrontendTokenTest extends AbstractClientTest
 
         $request = $this->getLastRequest();
         self::assertSame('GET', $request->getMethod());
-        self::assertSame('Bearer ' . $token, $request->getHeaderLine('authorization'));
+        self::assertSame('Bearer ' . $token->token, $request->getHeaderLine('authorization'));
     }
 
     /**
@@ -43,8 +44,6 @@ class VerifyFrontendTokenTest extends AbstractClientTest
      */
     public function verifyDataProvider(): array
     {
-        $userId = md5((string) rand());
-
         return [
             'unverified, HTTP 401' => [
                 'httpFixture' => new Response(401),

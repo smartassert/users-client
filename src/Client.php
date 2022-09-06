@@ -33,7 +33,7 @@ class Client
     /**
      * @throws ClientExceptionInterface
      */
-    public function verifyApiToken(string $token): ?string
+    public function verifyApiToken(Token $token): ?string
     {
         $response = $this->makeGetRequestWithJwtAuthorization($token, $this->routes->getVerifyApiTokenUrl());
         if (200 !== $response->getStatusCode()) {
@@ -43,7 +43,10 @@ class Client
         return $response->getBody()->getContents();
     }
 
-    public function verifyFrontendToken(string $token): bool
+    /**
+     * @throws ClientExceptionInterface
+     */
+    public function verifyFrontendToken(Token $token): bool
     {
         $response = $this->makeGetRequestWithJwtAuthorization($token, $this->routes->getVerifyFrontendTokenUrl());
 
@@ -53,9 +56,9 @@ class Client
     /**
      * @throws ClientExceptionInterface
      */
-    public function makeGetRequestWithJwtAuthorization(string $token, string $url): ResponseInterface
+    public function makeGetRequestWithJwtAuthorization(Token $token, string $url): ResponseInterface
     {
-        $request = $this->requestFactory->createRequest('GET', $this->routes->getVerifyFrontendTokenUrl());
+        $request = $this->requestFactory->createRequest('GET', $url);
         $request = $this->requestBuilder->addJwtAuthorizationHeader($request, $token);
 
         return $this->httpClient->sendRequest($request);
@@ -116,7 +119,7 @@ class Client
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      */
-    public function listUserApiKeys(string $token): ApiKeyCollection
+    public function listUserApiKeys(Token $token): ApiKeyCollection
     {
         $request = $this->requestFactory
             ->createRequest('GET', $this->routes->getListUserApiKeysUrl())
@@ -135,13 +138,13 @@ class Client
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      */
-    public function refreshFrontendToken(string $refreshToken): array
+    public function refreshFrontendToken(RefreshableToken $token): array
     {
         $request = $this->requestFactory
             ->createRequest('POST', $this->routes->getRefreshFrontendTokenUrl())
             ->withAddedHeader('content-type', 'application/json')
             ->withBody($this->streamFactory->createStream((string) json_encode([
-                'refresh_token' => $refreshToken,
+                'refresh_token' => $token->refreshToken,
             ])))
         ;
 
