@@ -9,6 +9,7 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
+use SmartAssert\UsersClient\Model\Token;
 
 class VerifyApiTokenTest extends AbstractClientTest
 {
@@ -18,7 +19,7 @@ class VerifyApiTokenTest extends AbstractClientTest
 
         $this->expectException(ClientExceptionInterface::class);
 
-        $this->client->verifyApiToken('token');
+        $this->client->verifyApiToken(new Token('token'));
     }
 
     /**
@@ -26,7 +27,7 @@ class VerifyApiTokenTest extends AbstractClientTest
      */
     public function testVerifyApiToken(ResponseInterface $httpFixture, ?string $expectedReturnValue): void
     {
-        $token = md5((string) rand());
+        $token = new Token(md5((string) rand()));
 
         $this->mockHandler->append($httpFixture);
 
@@ -35,7 +36,7 @@ class VerifyApiTokenTest extends AbstractClientTest
 
         $request = $this->getLastRequest();
         self::assertSame('GET', $request->getMethod());
-        self::assertSame('Bearer ' . $token, $request->getHeaderLine('authorization'));
+        self::assertSame('Bearer ' . $token->token, $request->getHeaderLine('authorization'));
     }
 
     /**

@@ -9,6 +9,7 @@ use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\UsersClient\Model\ApiKey;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
+use SmartAssert\UsersClient\Model\Token;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\InvalidJsonResponseExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
 
@@ -31,7 +32,7 @@ class ListUserApiKeysTest extends AbstractClientTest
 
         $this->expectException($expectedExceptionClass);
 
-        $this->client->listUserApiKeys('token');
+        $this->client->listUserApiKeys(new Token('token'));
     }
 
     /**
@@ -39,7 +40,7 @@ class ListUserApiKeysTest extends AbstractClientTest
      */
     public function testListApiKeySuccess(ResponseInterface $httpFixture, ApiKeyCollection $expected): void
     {
-        $token = md5((string) rand());
+        $token = new Token(md5((string) rand()));
 
         $this->mockHandler->append($httpFixture);
 
@@ -48,7 +49,7 @@ class ListUserApiKeysTest extends AbstractClientTest
 
         $request = $this->getLastRequest();
         self::assertSame('GET', $request->getMethod());
-        self::assertSame('Bearer ' . $token, $request->getHeaderLine('authorization'));
+        self::assertSame('Bearer ' . $token->token, $request->getHeaderLine('authorization'));
     }
 
     /**

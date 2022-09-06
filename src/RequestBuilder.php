@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SmartAssert\UsersClient;
 
 use Psr\Http\Message\RequestInterface;
+use SmartAssert\UsersClient\Model\Token;
 
 class RequestBuilder
 {
@@ -17,11 +18,11 @@ class RequestBuilder
     ) {
     }
 
-    public function addJwtAuthorizationHeader(RequestInterface $request, string $token): RequestInterface
+    public function addJwtAuthorizationHeader(RequestInterface $request, Token $token): RequestInterface
     {
         return $request->withHeader(
             $this->authorizationHeaderName,
-            $this->authorizationValuePrefix . $token
+            $this->authorizationValuePrefix . $token->token
         );
     }
 }
