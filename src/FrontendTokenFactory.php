@@ -16,13 +16,27 @@ class FrontendTokenFactory
      */
     public function fromArray(array $data): ?FrontendToken
     {
-        if (!array_key_exists(self::KEY_TOKEN, $data) || !array_key_exists(self::KEY_REFRESH_TOKEN, $data)) {
+        $token = $this->getNonEmptyStringValue(self::KEY_TOKEN, $data);
+        $refreshToken = $this->getNonEmptyStringValue(self::KEY_REFRESH_TOKEN, $data);
+
+        return null === $token || null === $refreshToken ? null : new FrontendToken($token, $refreshToken);
+    }
+
+    /**
+     * @param non-empty-string $key
+     * @param array<mixed>     $data
+     *
+     * @return null|non-empty-string
+     */
+    private function getNonEmptyStringValue(string $key, array $data): ?string
+    {
+        if (!array_key_exists($key, $data)) {
             return null;
         }
 
-        $token = $data[self::KEY_TOKEN];
-        $refreshToken = $data[self::KEY_REFRESH_TOKEN];
+        $value = $data[$key] ?? null;
+        $value = is_string($value) ? trim($value) : null;
 
-        return is_string($token) && is_string($refreshToken) ? new FrontendToken($token, $refreshToken) : null;
+        return '' === $value ? null : $value;
     }
 }
