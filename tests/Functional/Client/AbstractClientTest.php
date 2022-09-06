@@ -18,6 +18,7 @@ use SmartAssert\UsersClient\RefreshableTokenFactory;
 use SmartAssert\UsersClient\RequestBuilder;
 use SmartAssert\UsersClient\Routes;
 use SmartAssert\UsersClient\TokenFactory;
+use SmartAssert\UsersClient\UserFactory;
 use webignition\HttpHistoryContainer\Container as HttpHistoryContainer;
 
 abstract class AbstractClientTest extends TestCase
@@ -54,6 +55,7 @@ abstract class AbstractClientTest extends TestCase
             ),
             new RefreshableTokenFactory(),
             new TokenFactory(),
+            new UserFactory(),
         );
     }
 
