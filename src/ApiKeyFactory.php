@@ -11,6 +11,11 @@ class ApiKeyFactory
     private const KEY_LABEL = 'label';
     private const KEY_KEY = 'key';
 
+    public function __construct(
+        private readonly ArrayAccessor $arrayAccessor,
+    ) {
+    }
+
     /**
      * @param array<mixed> $data
      */
@@ -25,11 +30,7 @@ class ApiKeyFactory
             return null;
         }
 
-        if (!array_key_exists(self::KEY_KEY, $data)) {
-            return null;
-        }
-
-        $key = $data[self::KEY_KEY];
+        $key = $this->arrayAccessor->getStringValue(self::KEY_KEY, $data);
         if (!is_string($key)) {
             return null;
         }
