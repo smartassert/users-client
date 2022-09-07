@@ -8,15 +8,15 @@ use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
+use SmartAssert\UsersClient\Model\User;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\InvalidJsonResponseExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
-use SmartAssert\UsersClient\Tests\Functional\DataProvider\ValidJsonResponseDataProviderTrait;
+use Symfony\Component\Uid\Ulid;
 
 class CreateUserTest extends AbstractClientTest
 {
     use NetworkErrorExceptionDataProviderTrait;
     use InvalidJsonResponseExceptionDataProviderTrait;
-    use ValidJsonResponseDataProviderTrait;
 
     /**
      * @dataProvider networkErrorExceptionDataProvider
@@ -50,11 +50,9 @@ class CreateUserTest extends AbstractClientTest
     }
 
     /**
-     * @param array<mixed> $expected
-     *
-     * @dataProvider validJsonResponseDataProvider
+     * @dataProvider createUserSuccessDataProvider
      */
-    public function testCreateUserSuccess(ResponseInterface $httpFixture, array $expected): void
+    public function testCreateUserSuccess(ResponseInterface $httpFixture, User $expected): void
     {
         $this->mockHandler->append($httpFixture);
 
@@ -74,5 +72,30 @@ class CreateUserTest extends AbstractClientTest
             http_build_query(['email' => $email, 'password' => $password]),
             $request->getBody()->getContents()
         );
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function createUserSuccessDataProvider(): array
+    {
+        $id = (string) new Ulid();
+        $userIdentifier = md5((string) rand()) . '@example.com';
+
+        return [
+            'created' => [
+                'httpFixture' => new Response(
+                    200,
+                    [
+                        'content-type' => 'application/json',
+                    ],
+                    (string) json_encode([
+                        'id' => $id,
+                        'user-identifier' => $userIdentifier,
+                    ])
+                ),
+                'expected' => new User($id, $userIdentifier),
+            ],
+        ];
     }
 }
