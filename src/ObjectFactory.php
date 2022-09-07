@@ -59,12 +59,9 @@ class ObjectFactory
     public function createUserFromArray(array $data): ?User
     {
         $id = $this->getStringValue('id', $data);
-        if (!is_string($id)) {
-            return null;
-        }
-
         $userIdentifier = $this->getStringValue('user-identifier', $data);
-        if (!is_string($userIdentifier)) {
+
+        if (!(is_string($id) && is_string($userIdentifier))) {
             return null;
         }
 
