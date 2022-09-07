@@ -15,7 +15,6 @@ class ObjectFactory
     public function __construct(
         private readonly ApiKeyCollectionFactory $apiKeyCollectionFactory,
         private readonly RefreshableTokenFactory $refreshableTokenFactory,
-        private readonly TokenFactory $tokenFactory,
         private readonly ArrayAccessor $arrayAccessor,
     ) {
     }
@@ -41,7 +40,9 @@ class ObjectFactory
      */
     public function createTokenFromArray(array $data): ?Token
     {
-        return $this->tokenFactory->fromArray($data);
+        $token = $this->arrayAccessor->getNonEmptyStringValue('token', $data);
+
+        return null === $token ? null : new Token($token);
     }
 
     /**
