@@ -79,12 +79,15 @@ class Client
         ;
 
         $response = $this->httpClient->sendRequest($request);
-
         if (409 === $response->getStatusCode()) {
             throw new UserAlreadyExistsException($email, $response);
         }
 
-        return $this->objectFactory->createUserFromArray($this->getJsonResponseData($response));
+        $responseData = $this->getJsonResponseData($response);
+        $userData = $responseData['user'] ?? [];
+        $userData = is_array($userData) ? $userData : [];
+
+        return $this->objectFactory->createUserFromArray($userData);
     }
 
     /**

@@ -89,8 +89,10 @@ class CreateUserTest extends AbstractClientTest
                         'content-type' => 'application/json',
                     ],
                     (string) json_encode([
-                        'id' => $id,
-                        'user-identifier' => $userIdentifier,
+                        'user' => [
+                            'id' => $id,
+                            'user-identifier' => $userIdentifier,
+                        ],
                     ])
                 ),
                 'expected' => new User($id, $userIdentifier),
