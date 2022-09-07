@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace SmartAssert\UsersClient;
+namespace SmartAssert\UsersClient\Factory;
 
+use SmartAssert\UsersClient\ArrayAccessor;
 use SmartAssert\UsersClient\Model\ApiKey;
 
 class ApiKeyFactory

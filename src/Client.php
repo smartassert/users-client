@@ -12,6 +12,7 @@ use Psr\Http\Message\StreamFactoryInterface;
 use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
 use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
+use SmartAssert\UsersClient\Factory\ObjectFactory;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
 use SmartAssert\UsersClient\Model\RefreshableToken;
 use SmartAssert\UsersClient\Model\Token;
@@ -25,10 +26,7 @@ class Client
         private readonly RequestBuilder $requestBuilder,
         private readonly HttpClientInterface $httpClient,
         private readonly Routes $routes,
-        private readonly ApiKeyCollectionFactory $apiKeyCollectionFactory,
-        private readonly RefreshableTokenFactory $refreshableTokenFactory,
-        private readonly TokenFactory $tokenFactory,
-        private readonly UserFactory $userFactory,
+        private readonly ObjectFactory $objectFactory,
     ) {
     }
 
@@ -87,7 +85,7 @@ class Client
             throw new UserAlreadyExistsException($email, $response);
         }
 
-        return $this->userFactory->fromArray($this->getJsonResponseData($response));
+        return $this->objectFactory->createUserFromArray($this->getJsonResponseData($response));
     }
 
     /**
@@ -106,7 +104,7 @@ class Client
             ])))
         ;
 
-        return $this->refreshableTokenFactory->fromArray(
+        return $this->objectFactory->createRefreshableTokenFromArray(
             $this->getJsonResponseData($this->httpClient->sendRequest($request))
         );
     }
@@ -125,7 +123,7 @@ class Client
         $request = $this->requestBuilder->addJwtAuthorizationHeader($request, $token);
         $responseData = $this->getJsonResponseData($this->httpClient->sendRequest($request));
 
-        return $this->apiKeyCollectionFactory->fromArray($responseData);
+        return $this->objectFactory->createApiKeyCollectionFromArray($responseData);
     }
 
     /**
@@ -143,7 +141,7 @@ class Client
             ])))
         ;
 
-        return $this->refreshableTokenFactory->fromArray(
+        return $this->objectFactory->createRefreshableTokenFromArray(
             $this->getJsonResponseData($this->httpClient->sendRequest($request))
         );
     }
@@ -160,7 +158,9 @@ class Client
             ->withAddedHeader('Authorization', $apiKey)
         ;
 
-        return $this->tokenFactory->fromArray($this->getJsonResponseData($this->httpClient->sendRequest($request)));
+        return $this->objectFactory->createTokenFromArray(
+            $this->getJsonResponseData($this->httpClient->sendRequest($request))
+        );
     }
 
     /**
@@ -192,7 +192,7 @@ class Client
             return null;
         }
 
-        return $this->userFactory->fromArray($this->getJsonResponseData($response));
+        return $this->objectFactory->createUserFromArray($this->getJsonResponseData($response));
     }
 
     /**

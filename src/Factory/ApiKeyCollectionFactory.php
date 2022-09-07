@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SmartAssert\UsersClient;
+namespace SmartAssert\UsersClient\Factory;
 
 use SmartAssert\UsersClient\Model\ApiKey;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
