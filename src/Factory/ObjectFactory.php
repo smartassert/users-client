@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SmartAssert\UsersClient\Factory;
 
+use SmartAssert\UsersClient\ArrayAccessor;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
 use SmartAssert\UsersClient\Model\RefreshableToken;
 use SmartAssert\UsersClient\Model\Token;
@@ -15,7 +16,7 @@ class ObjectFactory
         private readonly ApiKeyCollectionFactory $apiKeyCollectionFactory,
         private readonly RefreshableTokenFactory $refreshableTokenFactory,
         private readonly TokenFactory $tokenFactory,
-        private readonly UserFactory $userFactory,
+        private readonly ArrayAccessor $arrayAccessor,
     ) {
     }
 
@@ -48,6 +49,16 @@ class ObjectFactory
      */
     public function createUserFromArray(array $data): ?User
     {
-        return $this->userFactory->fromArray($data);
+        $id = $this->arrayAccessor->getStringValue('id', $data);
+        if (!is_string($id)) {
+            return null;
+        }
+
+        $userIdentifier = $this->arrayAccessor->getStringValue('user-identifier', $data);
+        if (!is_string($userIdentifier)) {
+            return null;
+        }
+
+        return new User($id, $userIdentifier);
     }
 }

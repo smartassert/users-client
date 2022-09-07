@@ -18,7 +18,6 @@ use SmartAssert\UsersClient\Factory\ApiKeyFactory;
 use SmartAssert\UsersClient\Factory\ObjectFactory;
 use SmartAssert\UsersClient\Factory\RefreshableTokenFactory;
 use SmartAssert\UsersClient\Factory\TokenFactory;
-use SmartAssert\UsersClient\Factory\UserFactory;
 use SmartAssert\UsersClient\RequestBuilder;
 use SmartAssert\UsersClient\Routes;
 use webignition\HttpHistoryContainer\Container as HttpHistoryContainer;
@@ -60,7 +59,7 @@ abstract class AbstractClientTest extends TestCase
                 ),
                 new RefreshableTokenFactory(),
                 new TokenFactory($arrayAccessor),
-                new UserFactory($arrayAccessor),
+                $arrayAccessor,
             ),
         );
     }
