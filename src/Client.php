@@ -26,8 +26,8 @@ class Client
         private readonly HttpClientInterface $httpClient,
         private readonly Routes $routes,
         private readonly ApiKeyCollectionFactory $apiKeyCollectionFactory,
-        private readonly RefreshableTokenFactory $frontendTokenFactory,
-        private readonly TokenFactory $apiTokenFactory,
+        private readonly RefreshableTokenFactory $refreshableTokenFactory,
+        private readonly TokenFactory $tokenFactory,
         private readonly UserFactory $userFactory,
     ) {
     }
@@ -108,7 +108,7 @@ class Client
             ])))
         ;
 
-        return $this->frontendTokenFactory->fromArray(
+        return $this->refreshableTokenFactory->fromArray(
             $this->getJsonResponseData($this->httpClient->sendRequest($request))
         );
     }
@@ -131,13 +131,11 @@ class Client
     }
 
     /**
-     * @return array<mixed>
-     *
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      */
-    public function refreshFrontendToken(RefreshableToken $token): array
+    public function refreshFrontendToken(RefreshableToken $token): ?RefreshableToken
     {
         $request = $this->requestFactory
             ->createRequest('POST', $this->routes->getRefreshFrontendTokenUrl())
@@ -147,7 +145,9 @@ class Client
             ])))
         ;
 
-        return $this->getJsonResponseData($this->httpClient->sendRequest($request));
+        return $this->refreshableTokenFactory->fromArray(
+            $this->getJsonResponseData($this->httpClient->sendRequest($request))
+        );
     }
 
     /**
@@ -162,7 +162,7 @@ class Client
             ->withAddedHeader('Authorization', $apiKey)
         ;
 
-        return $this->apiTokenFactory->fromArray($this->getJsonResponseData($this->httpClient->sendRequest($request)));
+        return $this->tokenFactory->fromArray($this->getJsonResponseData($this->httpClient->sendRequest($request)));
     }
 
     /**
