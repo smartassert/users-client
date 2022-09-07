@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace SmartAssert\UsersClient\Tests\Integration;
 
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Token\Parser;
+use Lcobucci\JWT\Token\Plain;
 use SmartAssert\UsersClient\Model\RefreshableToken;
 use SmartAssert\UsersClient\Model\User;
-use Lcobucci\JWT\Token\Parser;
-use Lcobucci\JWT\Encoding\JoseEncoder;
-use Lcobucci\JWT\Token\Plain;
 
 class CreateVerifyRefreshFrontendTokenTest extends AbstractIntegrationTest
 {
