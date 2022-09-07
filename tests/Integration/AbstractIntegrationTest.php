@@ -7,15 +7,10 @@ namespace SmartAssert\UsersClient\Tests\Integration;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Psr7\HttpFactory;
 use PHPUnit\Framework\TestCase;
-use SmartAssert\UsersClient\ApiKeyCollectionFactory;
-use SmartAssert\UsersClient\ApiKeyFactory;
-use SmartAssert\UsersClient\ArrayAccessor;
 use SmartAssert\UsersClient\Client;
-use SmartAssert\UsersClient\RefreshableTokenFactory;
+use SmartAssert\UsersClient\ObjectFactory;
 use SmartAssert\UsersClient\RequestBuilder;
 use SmartAssert\UsersClient\Routes;
-use SmartAssert\UsersClient\TokenFactory;
-use SmartAssert\UsersClient\UserFactory;
 
 abstract class AbstractIntegrationTest extends TestCase
 {
@@ -30,7 +25,6 @@ abstract class AbstractIntegrationTest extends TestCase
         parent::setUp();
 
         $httpFactory = new HttpFactory();
-        $arrayAccessor = new ArrayAccessor();
 
         $this->client = new Client(
             $httpFactory,
@@ -40,12 +34,7 @@ abstract class AbstractIntegrationTest extends TestCase
             new Routes(
                 'http://localhost:9080',
             ),
-            new ApiKeyCollectionFactory(
-                new ApiKeyFactory($arrayAccessor),
-            ),
-            new RefreshableTokenFactory(),
-            new TokenFactory($arrayAccessor),
-            new UserFactory($arrayAccessor)
+            new ObjectFactory(),
         );
     }
 }
