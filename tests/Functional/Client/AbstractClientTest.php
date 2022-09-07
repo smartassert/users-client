@@ -11,15 +11,10 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\HttpFactory;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
-use SmartAssert\UsersClient\ApiKeyCollectionFactory;
-use SmartAssert\UsersClient\ApiKeyFactory;
-use SmartAssert\UsersClient\ArrayAccessor;
 use SmartAssert\UsersClient\Client;
-use SmartAssert\UsersClient\RefreshableTokenFactory;
+use SmartAssert\UsersClient\ObjectFactory;
 use SmartAssert\UsersClient\RequestBuilder;
 use SmartAssert\UsersClient\Routes;
-use SmartAssert\UsersClient\TokenFactory;
-use SmartAssert\UsersClient\UserFactory;
 use webignition\HttpHistoryContainer\Container as HttpHistoryContainer;
 
 abstract class AbstractClientTest extends TestCase
@@ -41,8 +36,6 @@ abstract class AbstractClientTest extends TestCase
         $this->httpHistoryContainer = new HttpHistoryContainer();
         $handlerStack->push(Middleware::history($this->httpHistoryContainer));
 
-        $arrayAccessor = new ArrayAccessor();
-
         $this->client = new Client(
             $httpFactory,
             $httpFactory,
@@ -53,12 +46,7 @@ abstract class AbstractClientTest extends TestCase
             new Routes(
                 'https://users.example.com',
             ),
-            new ApiKeyCollectionFactory(
-                new ApiKeyFactory($arrayAccessor),
-            ),
-            new RefreshableTokenFactory(),
-            new TokenFactory($arrayAccessor),
-            new UserFactory($arrayAccessor),
+            new ObjectFactory(),
         );
     }
 
