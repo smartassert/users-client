@@ -77,7 +77,8 @@
         "webignition/http-history-container": "^2.4",
         "symfony/uid": "^6.1",
         "phpstan/extension-installer": "^1.1",
-        "phpstan/phpstan-phpunit": "^1.1"
+        "phpstan/phpstan-phpunit": "^1.1",
+        "lcobucci/jwt": "^4.2"
     },
     "minimum-stability":"stable",
     "prefer-stable":true,
