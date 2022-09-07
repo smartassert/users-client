@@ -73,21 +73,12 @@ class ObjectFactory
      */
     private function createApiKeyFromArray(array $data): ?ApiKey
     {
-        if (!array_key_exists('label', $data)) {
-            return null;
-        }
-
-        $label = $data['label'];
-        if (!(null === $label || is_string($label))) {
-            return null;
-        }
-
         $key = $this->getStringValue('key', $data);
         if (!is_string($key)) {
             return null;
         }
 
-        return new ApiKey($label, $key);
+        return new ApiKey($this->getStringValue('label', $data), $key);
     }
 
     /**
