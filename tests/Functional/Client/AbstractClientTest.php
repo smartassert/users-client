@@ -11,7 +11,6 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\HttpFactory;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
-use SmartAssert\UsersClient\ArrayAccessor;
 use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\ObjectFactory;
 use SmartAssert\UsersClient\RequestBuilder;
@@ -47,7 +46,7 @@ abstract class AbstractClientTest extends TestCase
             new Routes(
                 'https://users.example.com',
             ),
-            new ObjectFactory(new ArrayAccessor()),
+            new ObjectFactory(),
         );
     }
 

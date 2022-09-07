@@ -12,11 +12,6 @@ use SmartAssert\UsersClient\Model\User;
 
 class ObjectFactory
 {
-    public function __construct(
-        private readonly ArrayAccessor $arrayAccessor,
-    ) {
-    }
-
     /**
      * @param array<mixed> $data
      */
@@ -42,8 +37,8 @@ class ObjectFactory
      */
     public function createRefreshableTokenFromArray(array $data): ?RefreshableToken
     {
-        $token = $this->arrayAccessor->getNonEmptyStringValue('token', $data);
-        $refreshToken = $this->arrayAccessor->getNonEmptyStringValue('refresh_token', $data);
+        $token = $this->getNonEmptyStringValue('token', $data);
+        $refreshToken = $this->getNonEmptyStringValue('refresh_token', $data);
 
         return null === $token || null === $refreshToken ? null : new RefreshableToken($token, $refreshToken);
     }
@@ -53,7 +48,7 @@ class ObjectFactory
      */
     public function createTokenFromArray(array $data): ?Token
     {
-        $token = $this->arrayAccessor->getNonEmptyStringValue('token', $data);
+        $token = $this->getNonEmptyStringValue('token', $data);
 
         return null === $token ? null : new Token($token);
     }
@@ -63,12 +58,12 @@ class ObjectFactory
      */
     public function createUserFromArray(array $data): ?User
     {
-        $id = $this->arrayAccessor->getStringValue('id', $data);
+        $id = $this->getStringValue('id', $data);
         if (!is_string($id)) {
             return null;
         }
 
-        $userIdentifier = $this->arrayAccessor->getStringValue('user-identifier', $data);
+        $userIdentifier = $this->getStringValue('user-identifier', $data);
         if (!is_string($userIdentifier)) {
             return null;
         }
@@ -90,11 +85,35 @@ class ObjectFactory
             return null;
         }
 
-        $key = $this->arrayAccessor->getStringValue('key', $data);
+        $key = $this->getStringValue('key', $data);
         if (!is_string($key)) {
             return null;
         }
 
         return new ApiKey($label, $key);
+    }
+
+    /**
+     * @param non-empty-string $key
+     * @param array<mixed>     $data
+     */
+    private function getStringValue(string $key, array $data): ?string
+    {
+        $value = $data[$key] ?? null;
+
+        return is_string($value) ? $value : null;
+    }
+
+    /**
+     * @param non-empty-string $key
+     * @param array<mixed>     $data
+     *
+     * @return null|non-empty-string
+     */
+    private function getNonEmptyStringValue(string $key, array $data): ?string
+    {
+        $value = trim((string) $this->getStringValue($key, $data));
+
+        return '' === $value ? null : $value;
     }
 }
