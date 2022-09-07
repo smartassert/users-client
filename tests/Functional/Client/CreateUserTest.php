@@ -11,7 +11,6 @@ use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 use SmartAssert\UsersClient\Model\User;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\InvalidJsonResponseExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
-use Symfony\Component\Uid\Ulid;
 
 class CreateUserTest extends AbstractClientTest
 {
@@ -79,7 +78,7 @@ class CreateUserTest extends AbstractClientTest
      */
     public function createUserSuccessDataProvider(): array
     {
-        $id = (string) new Ulid();
+        $id = md5((string) rand());
         $userIdentifier = md5((string) rand()) . '@example.com';
 
         return [
