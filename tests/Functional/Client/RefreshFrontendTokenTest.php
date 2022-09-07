@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace SmartAssert\UsersClient\Tests\Functional\Client;
 
+use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\UsersClient\Model\RefreshableToken;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\InvalidJsonResponseExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
-use SmartAssert\UsersClient\Tests\Functional\DataProvider\ValidJsonResponseDataProviderTrait;
 
 class RefreshFrontendTokenTest extends AbstractClientTest
 {
     use NetworkErrorExceptionDataProviderTrait;
     use InvalidJsonResponseExceptionDataProviderTrait;
-    use ValidJsonResponseDataProviderTrait;
 
     /**
      * @dataProvider networkErrorExceptionDataProvider
@@ -35,11 +34,9 @@ class RefreshFrontendTokenTest extends AbstractClientTest
     }
 
     /**
-     * @dataProvider validJsonResponseDataProvider
-     *
-     * @param array<mixed> $expected
+     * @dataProvider refreshFrontendTokenSuccessDataProvider
      */
-    public function testRefreshFrontendTokenSuccess(ResponseInterface $httpFixture, array $expected): void
+    public function testRefreshFrontendTokenSuccess(ResponseInterface $httpFixture, RefreshableToken $expected): void
     {
         $refreshToken = new RefreshableToken(md5((string) rand()), md5((string) rand()));
 
@@ -55,5 +52,30 @@ class RefreshFrontendTokenTest extends AbstractClientTest
             json_encode(['refresh_token' => $refreshToken->refreshToken]),
             $request->getBody()->getContents()
         );
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function refreshFrontendTokenSuccessDataProvider(): array
+    {
+        $token = md5((string) rand());
+        $refreshToken = md5((string) rand());
+
+        return [
+            'refreshed' => [
+                'httpFixture' => new Response(
+                    200,
+                    [
+                        'content-type' => 'application/json',
+                    ],
+                    (string) json_encode([
+                        'token' => $token,
+                        'refresh_token' => $refreshToken,
+                    ])
+                ),
+                'expected' => new RefreshableToken($token, $refreshToken),
+            ],
+        ];
     }
 }
