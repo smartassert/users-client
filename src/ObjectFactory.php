@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace SmartAssert\UsersClient\Factory;
+namespace SmartAssert\UsersClient;
 
-use SmartAssert\UsersClient\ArrayAccessor;
 use SmartAssert\UsersClient\Model\ApiKey;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
 use SmartAssert\UsersClient\Model\RefreshableToken;

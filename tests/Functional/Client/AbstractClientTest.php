@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use SmartAssert\UsersClient\ArrayAccessor;
 use SmartAssert\UsersClient\Client;
-use SmartAssert\UsersClient\Factory\ObjectFactory;
+use SmartAssert\UsersClient\ObjectFactory;
 use SmartAssert\UsersClient\RequestBuilder;
 use SmartAssert\UsersClient\Routes;
 use webignition\HttpHistoryContainer\Container as HttpHistoryContainer;

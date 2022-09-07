@@ -12,7 +12,6 @@ use Psr\Http\Message\StreamFactoryInterface;
 use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
 use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
-use SmartAssert\UsersClient\Factory\ObjectFactory;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
 use SmartAssert\UsersClient\Model\RefreshableToken;
 use SmartAssert\UsersClient\Model\Token;
