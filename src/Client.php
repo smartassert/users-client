@@ -64,14 +64,12 @@ class Client
     }
 
     /**
-     * @return array<mixed>
-     *
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      * @throws UserAlreadyExistsException
      */
-    public function createUser(string $adminToken, string $email, string $password): array
+    public function createUser(string $adminToken, string $email, string $password): ?User
     {
         $request = $this->requestFactory
             ->createRequest('POST', $this->routes->getCreateUserUrl())
@@ -89,7 +87,7 @@ class Client
             throw new UserAlreadyExistsException($email, $response);
         }
 
-        return $this->getJsonResponseData($response);
+        return $this->userFactory->fromArray($this->getJsonResponseData($response));
     }
 
     /**

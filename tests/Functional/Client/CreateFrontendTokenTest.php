@@ -10,13 +10,11 @@ use Psr\Http\Message\ResponseInterface;
 use SmartAssert\UsersClient\Model\RefreshableToken;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\InvalidJsonResponseExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
-use SmartAssert\UsersClient\Tests\Functional\DataProvider\ValidJsonResponseDataProviderTrait;
 
 class CreateFrontendTokenTest extends AbstractClientTest
 {
     use NetworkErrorExceptionDataProviderTrait;
     use InvalidJsonResponseExceptionDataProviderTrait;
-    use ValidJsonResponseDataProviderTrait;
 
     /**
      * @dataProvider networkErrorExceptionDataProvider
