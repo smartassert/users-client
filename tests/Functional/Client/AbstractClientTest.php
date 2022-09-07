@@ -16,7 +16,6 @@ use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\Factory\ApiKeyCollectionFactory;
 use SmartAssert\UsersClient\Factory\ApiKeyFactory;
 use SmartAssert\UsersClient\Factory\ObjectFactory;
-use SmartAssert\UsersClient\Factory\RefreshableTokenFactory;
 use SmartAssert\UsersClient\RequestBuilder;
 use SmartAssert\UsersClient\Routes;
 use webignition\HttpHistoryContainer\Container as HttpHistoryContainer;
@@ -56,7 +55,6 @@ abstract class AbstractClientTest extends TestCase
                 new ApiKeyCollectionFactory(
                     new ApiKeyFactory($arrayAccessor),
                 ),
-                new RefreshableTokenFactory(),
                 $arrayAccessor,
             ),
         );

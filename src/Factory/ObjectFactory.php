@@ -14,7 +14,6 @@ class ObjectFactory
 {
     public function __construct(
         private readonly ApiKeyCollectionFactory $apiKeyCollectionFactory,
-        private readonly RefreshableTokenFactory $refreshableTokenFactory,
         private readonly ArrayAccessor $arrayAccessor,
     ) {
     }
@@ -32,7 +31,10 @@ class ObjectFactory
      */
     public function createRefreshableTokenFromArray(array $data): ?RefreshableToken
     {
-        return $this->refreshableTokenFactory->fromArray($data);
+        $token = $this->arrayAccessor->getNonEmptyStringValue('token', $data);
+        $refreshToken = $this->arrayAccessor->getNonEmptyStringValue('refresh_token', $data);
+
+        return null === $token || null === $refreshToken ? null : new RefreshableToken($token, $refreshToken);
     }
 
     /**
