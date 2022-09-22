@@ -9,6 +9,7 @@ use GuzzleHttp\Psr7\HttpFactory;
 use PHPUnit\Framework\TestCase;
 use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\ObjectFactory;
+use SmartAssert\UsersClient\ServiceClient;
 
 abstract class AbstractIntegrationTest extends TestCase
 {
@@ -26,9 +27,7 @@ abstract class AbstractIntegrationTest extends TestCase
 
         $this->client = new Client(
             'http://localhost:9080',
-            $httpFactory,
-            $httpFactory,
-            new HttpClient(),
+            new ServiceClient($httpFactory, $httpFactory, new HttpClient()),
             new ObjectFactory(),
         );
     }
