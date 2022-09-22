@@ -21,10 +21,10 @@ use SmartAssert\UsersClient\Model\User;
 class Client
 {
     public function __construct(
+        private readonly string $baseUrl,
         private readonly RequestFactoryInterface $requestFactory,
         private readonly StreamFactoryInterface $streamFactory,
         private readonly HttpClientInterface $httpClient,
-        private readonly Routes $routes,
         private readonly ObjectFactory $objectFactory,
     ) {
     }
@@ -36,7 +36,7 @@ class Client
      */
     public function verifyApiToken(Token $token): ?User
     {
-        return $this->makeTokenVerificationRequest($token, $this->routes->getVerifyApiTokenUrl());
+        return $this->makeTokenVerificationRequest($token, $this->createUrl('/api/token/verify'));
     }
 
     /**
@@ -46,7 +46,7 @@ class Client
      */
     public function verifyFrontendToken(Token $token): ?User
     {
-        return $this->makeTokenVerificationRequest($token, $this->routes->getVerifyFrontendTokenUrl());
+        return $this->makeTokenVerificationRequest($token, $this->createUrl('/frontend/token/verify'));
     }
 
     /**
@@ -69,7 +69,7 @@ class Client
     public function createUser(string $adminToken, string $email, string $password): ?User
     {
         $request = $this->requestFactory
-            ->createRequest('POST', $this->routes->getCreateUserUrl())
+            ->createRequest('POST', $this->createUrl('/admin/user/create'))
             ->withAddedHeader('Authorization', $adminToken)
             ->withAddedHeader('Content-Type', 'application/x-www-form-urlencoded')
             ->withBody($this->streamFactory->createStream(http_build_query([
@@ -98,7 +98,7 @@ class Client
     public function createFrontendToken(string $email, string $password): ?RefreshableToken
     {
         $request = $this->requestFactory
-            ->createRequest('POST', $this->routes->getCreateFrontendTokenUrl())
+            ->createRequest('POST', $this->createUrl('/frontend/token/create'))
             ->withAddedHeader('content-type', 'application/json')
             ->withBody($this->streamFactory->createStream((string) json_encode([
                 'username' => $email,
@@ -119,7 +119,7 @@ class Client
     public function listUserApiKeys(Token $token): ApiKeyCollection
     {
         $request = $this->requestFactory
-            ->createRequest('GET', $this->routes->getListUserApiKeysUrl())
+            ->createRequest('GET', $this->createUrl('/frontend/apikey/list'))
         ;
 
         $request = $this->addRequestJwtAuthorizationHeader($request, $token);
@@ -136,7 +136,7 @@ class Client
     public function refreshFrontendToken(RefreshableToken $token): ?RefreshableToken
     {
         $request = $this->requestFactory
-            ->createRequest('POST', $this->routes->getRefreshFrontendTokenUrl())
+            ->createRequest('POST', $this->createUrl('/frontend/token/refresh'))
             ->withAddedHeader('content-type', 'application/json')
             ->withBody($this->streamFactory->createStream((string) json_encode([
                 'refresh_token' => $token->refreshToken,
@@ -156,7 +156,7 @@ class Client
     public function createApiToken(string $apiKey): ?Token
     {
         $request = $this->requestFactory
-            ->createRequest('POST', $this->routes->getCreateApiTokenUrl())
+            ->createRequest('POST', $this->createUrl('/api/token/create'))
             ->withAddedHeader('Authorization', $apiKey)
         ;
 
@@ -171,7 +171,7 @@ class Client
     public function revokeFrontendRefreshToken(string $adminToken, string $userId): void
     {
         $request = $this->requestFactory
-            ->createRequest('POST', $this->routes->getRevokeFrontendRefreshTokenUrl())
+            ->createRequest('POST', $this->createUrl('/admin/frontend/refresh-token/revoke'))
             ->withAddedHeader('Authorization', $adminToken)
             ->withAddedHeader('content-type', 'application/x-www-form-urlencoded')
             ->withBody($this->streamFactory->createStream(http_build_query([
@@ -223,5 +223,15 @@ class Client
     private function addRequestJwtAuthorizationHeader(RequestInterface $request, Token $token): RequestInterface
     {
         return $request->withHeader('Authorization', 'Bearer ' . $token->token);
+    }
+
+    /**
+     * @param non-empty-string $path
+     *
+     * @return non-empty-string
+     */
+    private function createUrl(string $path): string
+    {
+        return rtrim($this->baseUrl, '/') . $path;
     }
 }
