@@ -13,10 +13,10 @@ use SmartAssert\UsersClient\Model\ApiKeyCollection;
 use SmartAssert\UsersClient\Model\RefreshableToken;
 use SmartAssert\UsersClient\Model\Token;
 use SmartAssert\UsersClient\Model\User;
-use SmartAssert\UsersClient\Payload\JsonPayload;
-use SmartAssert\UsersClient\Payload\UrlEncodedPayload;
 use SmartAssert\UsersClient\ServiceClient\Authentication\Authentication;
 use SmartAssert\UsersClient\ServiceClient\Authentication\BearerAuthentication;
+use SmartAssert\UsersClient\ServiceClient\Payload\JsonPayload;
+use SmartAssert\UsersClient\ServiceClient\Payload\UrlEncodedPayload;
 use SmartAssert\UsersClient\ServiceClient\ServiceClient;
 
 class Client

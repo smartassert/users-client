@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace SmartAssert\UsersClient;
 
-use SmartAssert\UsersClient\Payload\Payload;
 use SmartAssert\UsersClient\ServiceClient\Authentication\Authentication;
+use SmartAssert\UsersClient\ServiceClient\Payload\Payload;
 
 class Request
 {

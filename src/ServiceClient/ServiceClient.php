@@ -12,9 +12,9 @@ use Psr\Http\Message\StreamFactoryInterface;
 use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
 use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
 use SmartAssert\UsersClient\Exception\NonSuccessResponseException;
-use SmartAssert\UsersClient\Payload\Payload;
 use SmartAssert\UsersClient\Request;
 use SmartAssert\UsersClient\ServiceClient\Authentication\Authentication;
+use SmartAssert\UsersClient\ServiceClient\Payload\Payload;
 
 class ServiceClient
 {
