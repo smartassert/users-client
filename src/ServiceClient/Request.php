@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SmartAssert\UsersClient;
+namespace SmartAssert\UsersClient\ServiceClient;
 
 use SmartAssert\UsersClient\ServiceClient\Authentication\Authentication;
 use SmartAssert\UsersClient\ServiceClient\Payload\Payload;

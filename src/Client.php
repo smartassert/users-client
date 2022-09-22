@@ -17,6 +17,7 @@ use SmartAssert\UsersClient\ServiceClient\Authentication\Authentication;
 use SmartAssert\UsersClient\ServiceClient\Authentication\BearerAuthentication;
 use SmartAssert\UsersClient\ServiceClient\Payload\JsonPayload;
 use SmartAssert\UsersClient\ServiceClient\Payload\UrlEncodedPayload;
+use SmartAssert\UsersClient\ServiceClient\Request;
 use SmartAssert\UsersClient\ServiceClient\ServiceClient;
 
 class Client
