@@ -13,7 +13,6 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\ObjectFactory;
-use SmartAssert\UsersClient\Routes;
 use webignition\HttpHistoryContainer\Container as HttpHistoryContainer;
 
 abstract class AbstractClientTest extends TestCase
@@ -36,12 +35,12 @@ abstract class AbstractClientTest extends TestCase
         $handlerStack->push(Middleware::history($this->httpHistoryContainer));
 
         $this->client = new Client(
+            'https://users.example.com',
             $httpFactory,
             $httpFactory,
             new HttpClient([
                 'handler' => $handlerStack,
             ]),
-            new Routes('https://users.example.com'),
             new ObjectFactory(),
         );
     }
