@@ -7,6 +7,7 @@ namespace SmartAssert\UsersClient;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface as HttpClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
@@ -22,7 +23,6 @@ class Client
     public function __construct(
         private readonly RequestFactoryInterface $requestFactory,
         private readonly StreamFactoryInterface $streamFactory,
-        private readonly RequestBuilder $requestBuilder,
         private readonly HttpClientInterface $httpClient,
         private readonly Routes $routes,
         private readonly ObjectFactory $objectFactory,
@@ -55,7 +55,7 @@ class Client
     public function makeGetRequestWithJwtAuthorization(Token $token, string $url): ResponseInterface
     {
         $request = $this->requestFactory->createRequest('GET', $url);
-        $request = $this->requestBuilder->addJwtAuthorizationHeader($request, $token);
+        $request = $this->addRequestJwtAuthorizationHeader($request, $token);
 
         return $this->httpClient->sendRequest($request);
     }
@@ -122,7 +122,7 @@ class Client
             ->createRequest('GET', $this->routes->getListUserApiKeysUrl())
         ;
 
-        $request = $this->requestBuilder->addJwtAuthorizationHeader($request, $token);
+        $request = $this->addRequestJwtAuthorizationHeader($request, $token);
         $responseData = $this->getJsonResponseData($this->httpClient->sendRequest($request));
 
         return $this->objectFactory->createApiKeyCollectionFromArray($responseData);
@@ -218,5 +218,10 @@ class Client
         }
 
         return $data;
+    }
+
+    private function addRequestJwtAuthorizationHeader(RequestInterface $request, Token $token): RequestInterface
+    {
+        return $request->withHeader('Authorization', 'Bearer ' . $token->token);
     }
 }
