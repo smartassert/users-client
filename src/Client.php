@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace SmartAssert\UsersClient;
 
 use Psr\Http\Client\ClientExceptionInterface;
-use Psr\Http\Client\ClientInterface as HttpClientInterface;
-use Psr\Http\Message\RequestFactoryInterface;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamFactoryInterface;
-use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
-use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
+use SmartAssert\ServiceClient\Authentication\Authentication;
+use SmartAssert\ServiceClient\Authentication\BearerAuthentication;
+use SmartAssert\ServiceClient\Client as ServiceClient;
+use SmartAssert\ServiceClient\Exception\InvalidResponseContentException;
+use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
+use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
+use SmartAssert\ServiceClient\Payload\JsonPayload;
+use SmartAssert\ServiceClient\Payload\UrlEncodedPayload;
+use SmartAssert\ServiceClient\Request;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
 use SmartAssert\UsersClient\Model\RefreshableToken;
@@ -22,9 +24,7 @@ class Client
 {
     public function __construct(
         private readonly string $baseUrl,
-        private readonly RequestFactoryInterface $requestFactory,
-        private readonly StreamFactoryInterface $streamFactory,
-        private readonly HttpClientInterface $httpClient,
+        private readonly ServiceClient $serviceClient,
         private readonly ObjectFactory $objectFactory,
     ) {
     }
@@ -51,39 +51,30 @@ class Client
 
     /**
      * @throws ClientExceptionInterface
-     */
-    public function makeGetRequestWithJwtAuthorization(Token $token, string $url): ResponseInterface
-    {
-        $request = $this->requestFactory->createRequest('GET', $url);
-        $request = $this->addRequestJwtAuthorizationHeader($request, $token);
-
-        return $this->httpClient->sendRequest($request);
-    }
-
-    /**
-     * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
+     * @throws NonSuccessResponseException
      * @throws UserAlreadyExistsException
      */
     public function createUser(string $adminToken, string $email, string $password): ?User
     {
-        $request = $this->requestFactory
-            ->createRequest('POST', $this->createUrl('/admin/user/create'))
-            ->withAddedHeader('Authorization', $adminToken)
-            ->withAddedHeader('Content-Type', 'application/x-www-form-urlencoded')
-            ->withBody($this->streamFactory->createStream(http_build_query([
-                'email' => $email,
-                'password' => $password,
-            ])))
-        ;
+        try {
+            $responseData = $this->serviceClient->sendRequestForJsonEncodedData(
+                (new Request('POST', $this->createUrl('/admin/user/create')))
+                    ->withAuthentication(new Authentication($adminToken))
+                    ->withPayload(new UrlEncodedPayload([
+                        'email' => $email,
+                        'password' => $password,
+                    ]))
+            );
+        } catch (NonSuccessResponseException $nonSuccessResponseException) {
+            if (409 === $nonSuccessResponseException->getCode()) {
+                throw new UserAlreadyExistsException($email, $nonSuccessResponseException->response);
+            }
 
-        $response = $this->httpClient->sendRequest($request);
-        if (409 === $response->getStatusCode()) {
-            throw new UserAlreadyExistsException($email, $response);
+            throw $nonSuccessResponseException;
         }
 
-        $responseData = $this->getJsonResponseData($response);
         $userData = $responseData['user'] ?? [];
         $userData = is_array($userData) ? $userData : [];
 
@@ -94,36 +85,33 @@ class Client
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
+     * @throws NonSuccessResponseException
      */
     public function createFrontendToken(string $email, string $password): ?RefreshableToken
     {
-        $request = $this->requestFactory
-            ->createRequest('POST', $this->createUrl('/frontend/token/create'))
-            ->withAddedHeader('content-type', 'application/json')
-            ->withBody($this->streamFactory->createStream((string) json_encode([
-                'username' => $email,
-                'password' => $password,
-            ])))
-        ;
-
-        return $this->objectFactory->createRefreshableTokenFromArray(
-            $this->getJsonResponseData($this->httpClient->sendRequest($request))
+        $responseData = $this->serviceClient->sendRequestForJsonEncodedData(
+            (new Request('POST', $this->createUrl('/frontend/token/create')))
+                ->withPayload(new JsonPayload([
+                    'username' => $email,
+                    'password' => $password,
+                ]))
         );
+
+        return $this->objectFactory->createRefreshableTokenFromArray($responseData);
     }
 
     /**
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
+     * @throws NonSuccessResponseException
      */
     public function listUserApiKeys(Token $token): ApiKeyCollection
     {
-        $request = $this->requestFactory
-            ->createRequest('GET', $this->createUrl('/frontend/apikey/list'))
-        ;
-
-        $request = $this->addRequestJwtAuthorizationHeader($request, $token);
-        $responseData = $this->getJsonResponseData($this->httpClient->sendRequest($request));
+        $responseData = $this->serviceClient->sendRequestForJsonEncodedData(
+            (new Request('GET', $this->createUrl('/frontend/apikey/list')))
+                ->withAuthentication(new BearerAuthentication($token->token))
+        );
 
         return $this->objectFactory->createApiKeyCollectionFromArray($responseData);
     }
@@ -132,54 +120,53 @@ class Client
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
+     * @throws NonSuccessResponseException
      */
     public function refreshFrontendToken(RefreshableToken $token): ?RefreshableToken
     {
-        $request = $this->requestFactory
-            ->createRequest('POST', $this->createUrl('/frontend/token/refresh'))
-            ->withAddedHeader('content-type', 'application/json')
-            ->withBody($this->streamFactory->createStream((string) json_encode([
-                'refresh_token' => $token->refreshToken,
-            ])))
-        ;
+        try {
+            $responseData = $this->serviceClient->sendRequestForJsonEncodedData(
+                (new Request('POST', $this->createUrl('/frontend/token/refresh')))
+                    ->withPayload(new JsonPayload(['refresh_token' => $token->refreshToken]))
+            );
+        } catch (NonSuccessResponseException $nonSuccessResponseException) {
+            if (401 === $nonSuccessResponseException->getCode()) {
+                return null;
+            }
 
-        return $this->objectFactory->createRefreshableTokenFromArray(
-            $this->getJsonResponseData($this->httpClient->sendRequest($request))
-        );
+            throw $nonSuccessResponseException;
+        }
+
+        return $this->objectFactory->createRefreshableTokenFromArray($responseData);
     }
 
     /**
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
+     * @throws NonSuccessResponseException
      */
     public function createApiToken(string $apiKey): ?Token
     {
-        $request = $this->requestFactory
-            ->createRequest('POST', $this->createUrl('/api/token/create'))
-            ->withAddedHeader('Authorization', $apiKey)
-        ;
-
-        return $this->objectFactory->createTokenFromArray(
-            $this->getJsonResponseData($this->httpClient->sendRequest($request))
+        $responseData = $this->serviceClient->sendRequestForJsonEncodedData(
+            (new Request('POST', $this->createUrl('/api/token/create')))
+                ->withAuthentication(new Authentication($apiKey))
         );
+
+        return $this->objectFactory->createTokenFromArray($responseData);
     }
 
     /**
      * @throws ClientExceptionInterface
+     * @throws NonSuccessResponseException
      */
     public function revokeFrontendRefreshToken(string $adminToken, string $userId): void
     {
-        $request = $this->requestFactory
-            ->createRequest('POST', $this->createUrl('/admin/frontend/refresh-token/revoke'))
-            ->withAddedHeader('Authorization', $adminToken)
-            ->withAddedHeader('content-type', 'application/x-www-form-urlencoded')
-            ->withBody($this->streamFactory->createStream(http_build_query([
-                'id' => $userId,
-            ])))
-        ;
-
-        $this->httpClient->sendRequest($request);
+        $this->serviceClient->sendRequest(
+            (new Request('POST', $this->createUrl('/admin/frontend/refresh-token/revoke')))
+                ->withAuthentication(new Authentication($adminToken))
+                ->withPayload(new UrlEncodedPayload(['id' => $userId]))
+        );
     }
 
     /**
@@ -189,40 +176,16 @@ class Client
      */
     private function makeTokenVerificationRequest(Token $token, string $url): ?User
     {
-        $response = $this->makeGetRequestWithJwtAuthorization($token, $url);
-        if (200 !== $response->getStatusCode()) {
+        try {
+            $responseData = $this->serviceClient->sendRequestForJsonEncodedData(
+                (new Request('GET', $url))
+                    ->withAuthentication(new BearerAuthentication($token->token))
+            );
+        } catch (NonSuccessResponseException) {
             return null;
         }
 
-        return $this->objectFactory->createUserFromArray($this->getJsonResponseData($response));
-    }
-
-    /**
-     * @return array<mixed>
-     *
-     * @throws InvalidResponseContentException
-     * @throws InvalidResponseDataException
-     */
-    private function getJsonResponseData(ResponseInterface $response): array
-    {
-        $expectedContentType = 'application/json';
-        $actualContentType = $response->getHeaderLine('content-type');
-
-        if ($expectedContentType !== $actualContentType) {
-            throw new InvalidResponseContentException($expectedContentType, $actualContentType, $response);
-        }
-
-        $data = json_decode($response->getBody()->getContents(), true);
-        if (!is_array($data)) {
-            throw new InvalidResponseDataException('array', gettype($data), $response);
-        }
-
-        return $data;
-    }
-
-    private function addRequestJwtAuthorizationHeader(RequestInterface $request, Token $token): RequestInterface
-    {
-        return $request->withHeader('Authorization', 'Bearer ' . $token->token);
+        return $this->objectFactory->createUserFromArray($responseData);
     }
 
     /**

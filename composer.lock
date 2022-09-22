@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2b67fe43e52a2ca50506933aaace842b",
+    "content-hash": "001413755e4a6b35b0d099bd206620fa",
     "packages": [
         {
             "name": "psr/http-client",
@@ -165,6 +165,59 @@
                 "source": "https://github.com/php-fig/http-message/tree/master"
             },
             "time": "2016-08-06T14:39:51+00:00"
+        },
+        {
+            "name": "smartassert/service-client",
+            "version": "0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/smartassert/service-client.git",
+                "reference": "0d4a9ca98c80f9da5f06f9a0945afc9280f400d1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/smartassert/service-client/zipball/0d4a9ca98c80f9da5f06f9a0945afc9280f400d1",
+                "reference": "0d4a9ca98c80f9da5f06f9a0945afc9280f400d1",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.1",
+                "psr/http-client": "^1.0",
+                "psr/http-factory": "^1.0",
+                "psr/http-message": "^1.0"
+            },
+            "require-dev": {
+                "guzzlehttp/guzzle": "^7.4",
+                "phpstan/extension-installer": "^1.1",
+                "phpstan/phpstan": "^1.8",
+                "phpstan/phpstan-phpunit": "^1.1",
+                "phpunit/phpunit": "^9.5",
+                "squizlabs/php_codesniffer": "^3.6",
+                "symfony/uid": "^6.1",
+                "webignition/http-history-container": "^2.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "SmartAssert\\ServiceClient\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jon Cram",
+                    "email": "webignition@gmail.com"
+                }
+            ],
+            "homepage": "https://github.com/smartassert/service-client",
+            "support": {
+                "issues": "https://github.com/smartassert/service-client/issues",
+                "source": "https://github.com/smartassert/service-client/tree/0.1"
+            },
+            "time": "2022-09-22T17:02:16+00:00"
         }
     ],
     "packages-dev": [
@@ -3365,5 +3418,5 @@
         "php": "^8.1"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }

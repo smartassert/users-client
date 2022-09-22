@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace SmartAssert\UsersClient\Tests\Functional\DataProvider;
 
 use GuzzleHttp\Psr7\Response;
-use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
-use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
+use SmartAssert\ServiceClient\Exception\InvalidResponseContentException;
+use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
 
 trait InvalidJsonResponseExceptionDataProviderTrait
 {
