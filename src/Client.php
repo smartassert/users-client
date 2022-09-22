@@ -17,6 +17,7 @@ use SmartAssert\UsersClient\Model\Token;
 use SmartAssert\UsersClient\Model\User;
 use SmartAssert\UsersClient\Payload\JsonPayload;
 use SmartAssert\UsersClient\Payload\UrlEncodedPayload;
+use SmartAssert\UsersClient\ServiceClient\ServiceClient;
 
 class Client
 {

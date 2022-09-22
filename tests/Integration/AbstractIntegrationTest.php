@@ -9,7 +9,7 @@ use GuzzleHttp\Psr7\HttpFactory;
 use PHPUnit\Framework\TestCase;
 use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\ObjectFactory;
-use SmartAssert\UsersClient\ServiceClient;
+use SmartAssert\UsersClient\ServiceClient\ServiceClient;
 
 abstract class AbstractIntegrationTest extends TestCase
 {

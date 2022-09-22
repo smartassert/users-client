@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\ObjectFactory;
-use SmartAssert\UsersClient\ServiceClient;
+use SmartAssert\UsersClient\ServiceClient\ServiceClient;
 use webignition\HttpHistoryContainer\Container as HttpHistoryContainer;
 
 abstract class AbstractClientTest extends TestCase

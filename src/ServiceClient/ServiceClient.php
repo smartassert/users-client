@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SmartAssert\UsersClient;
+namespace SmartAssert\UsersClient\ServiceClient;
 
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface as HttpClientInterface;
@@ -14,6 +14,7 @@ use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
 use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
 use SmartAssert\UsersClient\Exception\NonSuccessResponseException;
 use SmartAssert\UsersClient\Payload\Payload;
+use SmartAssert\UsersClient\Request;
 
 class ServiceClient
 {
