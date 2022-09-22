@@ -5,20 +5,20 @@ declare(strict_types=1);
 namespace SmartAssert\UsersClient;
 
 use Psr\Http\Client\ClientExceptionInterface;
-use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
-use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
-use SmartAssert\UsersClient\Exception\NonSuccessResponseException;
+use SmartAssert\ServiceClient\Authentication\Authentication;
+use SmartAssert\ServiceClient\Authentication\BearerAuthentication;
+use SmartAssert\ServiceClient\Client as ServiceClient;
+use SmartAssert\ServiceClient\Exception\InvalidResponseContentException;
+use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
+use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
+use SmartAssert\ServiceClient\Payload\JsonPayload;
+use SmartAssert\ServiceClient\Payload\UrlEncodedPayload;
+use SmartAssert\ServiceClient\Request;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
 use SmartAssert\UsersClient\Model\RefreshableToken;
 use SmartAssert\UsersClient\Model\Token;
 use SmartAssert\UsersClient\Model\User;
-use SmartAssert\UsersClient\ServiceClient\Authentication\Authentication;
-use SmartAssert\UsersClient\ServiceClient\Authentication\BearerAuthentication;
-use SmartAssert\UsersClient\ServiceClient\Payload\JsonPayload;
-use SmartAssert\UsersClient\ServiceClient\Payload\UrlEncodedPayload;
-use SmartAssert\UsersClient\ServiceClient\Request;
-use SmartAssert\UsersClient\ServiceClient\ServiceClient;
 
 class Client
 {
@@ -53,8 +53,8 @@ class Client
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
-     * @throws UserAlreadyExistsException
      * @throws NonSuccessResponseException
+     * @throws UserAlreadyExistsException
      */
     public function createUser(string $adminToken, string $email, string $password): ?User
     {

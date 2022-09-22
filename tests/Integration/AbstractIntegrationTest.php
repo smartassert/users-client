@@ -7,9 +7,9 @@ namespace SmartAssert\UsersClient\Tests\Integration;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Psr7\HttpFactory;
 use PHPUnit\Framework\TestCase;
+use SmartAssert\ServiceClient\Client as ServiceClient;
 use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\ObjectFactory;
-use SmartAssert\UsersClient\ServiceClient\ServiceClient;
 
 abstract class AbstractIntegrationTest extends TestCase
 {
