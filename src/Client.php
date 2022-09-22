@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace SmartAssert\UsersClient;
 
 use Psr\Http\Client\ClientExceptionInterface;
-use SmartAssert\UsersClient\Authentication\Authentication;
-use SmartAssert\UsersClient\Authentication\BearerAuthentication;
 use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
 use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
 use SmartAssert\UsersClient\Exception\NonSuccessResponseException;
@@ -17,6 +15,8 @@ use SmartAssert\UsersClient\Model\Token;
 use SmartAssert\UsersClient\Model\User;
 use SmartAssert\UsersClient\Payload\JsonPayload;
 use SmartAssert\UsersClient\Payload\UrlEncodedPayload;
+use SmartAssert\UsersClient\ServiceClient\Authentication\Authentication;
+use SmartAssert\UsersClient\ServiceClient\Authentication\BearerAuthentication;
 use SmartAssert\UsersClient\ServiceClient\ServiceClient;
 
 class Client

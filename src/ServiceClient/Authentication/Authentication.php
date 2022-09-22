@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SmartAssert\UsersClient\Authentication;
+namespace SmartAssert\UsersClient\ServiceClient\Authentication;
 
 class Authentication
 {

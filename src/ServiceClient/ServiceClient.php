@@ -9,12 +9,12 @@ use Psr\Http\Client\ClientInterface as HttpClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
-use SmartAssert\UsersClient\Authentication\Authentication;
 use SmartAssert\UsersClient\Exception\InvalidResponseContentException;
 use SmartAssert\UsersClient\Exception\InvalidResponseDataException;
 use SmartAssert\UsersClient\Exception\NonSuccessResponseException;
 use SmartAssert\UsersClient\Payload\Payload;
 use SmartAssert\UsersClient\Request;
+use SmartAssert\UsersClient\ServiceClient\Authentication\Authentication;
 
 class ServiceClient
 {
