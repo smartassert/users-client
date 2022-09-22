@@ -9,7 +9,6 @@ use GuzzleHttp\Psr7\HttpFactory;
 use PHPUnit\Framework\TestCase;
 use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\ObjectFactory;
-use SmartAssert\UsersClient\RequestBuilder;
 use SmartAssert\UsersClient\Routes;
 
 abstract class AbstractIntegrationTest extends TestCase
@@ -29,11 +28,8 @@ abstract class AbstractIntegrationTest extends TestCase
         $this->client = new Client(
             $httpFactory,
             $httpFactory,
-            new RequestBuilder(),
             new HttpClient(),
-            new Routes(
-                'http://localhost:9080',
-            ),
+            new Routes('http://localhost:9080'),
             new ObjectFactory(),
         );
     }
