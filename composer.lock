@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aad0708f14c235abcefcae8ee6aae525",
+    "content-hash": "3c1b53910019d2c07e0666c09dd7654e",
     "packages": [
         {
             "name": "psr/http-client",
@@ -168,16 +168,16 @@
         },
         {
             "name": "smartassert/service-client",
-            "version": "0.1",
+            "version": "0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/smartassert/service-client.git",
-                "reference": "0d4a9ca98c80f9da5f06f9a0945afc9280f400d1"
+                "reference": "a3f9df8a087c84028a491519bc2ce3ed17347291"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/smartassert/service-client/zipball/0d4a9ca98c80f9da5f06f9a0945afc9280f400d1",
-                "reference": "0d4a9ca98c80f9da5f06f9a0945afc9280f400d1",
+                "url": "https://api.github.com/repos/smartassert/service-client/zipball/a3f9df8a087c84028a491519bc2ce3ed17347291",
+                "reference": "a3f9df8a087c84028a491519bc2ce3ed17347291",
                 "shasum": ""
             },
             "require": {
@@ -215,9 +215,9 @@
             "homepage": "https://github.com/smartassert/service-client",
             "support": {
                 "issues": "https://github.com/smartassert/service-client/issues",
-                "source": "https://github.com/smartassert/service-client/tree/0.1"
+                "source": "https://github.com/smartassert/service-client/tree/0.2"
             },
-            "time": "2022-09-22T17:02:16+00:00"
+            "time": "2022-09-26T15:18:36+00:00"
         }
     ],
     "packages-dev": [

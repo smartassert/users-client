@@ -12,6 +12,7 @@ use GuzzleHttp\Psr7\HttpFactory;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use SmartAssert\ServiceClient\Client as ServiceClient;
+use SmartAssert\ServiceClient\ResponseDecoder;
 use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\ObjectFactory;
 use webignition\HttpHistoryContainer\Container as HttpHistoryContainer;
@@ -37,7 +38,12 @@ abstract class AbstractClientTest extends TestCase
 
         $this->client = new Client(
             'https://users.example.com',
-            new ServiceClient($httpFactory, $httpFactory, new HttpClient(['handler' => $handlerStack])),
+            new ServiceClient(
+                $httpFactory,
+                $httpFactory,
+                new HttpClient(['handler' => $handlerStack]),
+                new ResponseDecoder()
+            ),
             new ObjectFactory(),
         );
     }
