@@ -8,13 +8,16 @@ use Psr\Http\Client\ClientExceptionInterface;
 use SmartAssert\ServiceClient\Authentication\Authentication;
 use SmartAssert\ServiceClient\Authentication\BearerAuthentication;
 use SmartAssert\ServiceClient\Client as ServiceClient;
+use SmartAssert\ServiceClient\Exception\InvalidObjectDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseContentException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
+use SmartAssert\ServiceClient\ObjectFactory\ObjectFactory;
 use SmartAssert\ServiceClient\Payload\JsonPayload;
 use SmartAssert\ServiceClient\Payload\UrlEncodedPayload;
 use SmartAssert\ServiceClient\Request;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
+use SmartAssert\UsersClient\Model\ApiKey;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
 use SmartAssert\UsersClient\Model\RefreshableToken;
 use SmartAssert\UsersClient\Model\Token;
@@ -25,7 +28,7 @@ class Client
     public function __construct(
         private readonly string $baseUrl,
         private readonly ServiceClient $serviceClient,
-        private readonly ObjectFactory $objectFactory,
+        protected readonly ObjectFactory $objectFactory,
     ) {
     }
 
@@ -33,6 +36,7 @@ class Client
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
+     * @throws InvalidObjectDataException
      */
     public function verifyApiToken(Token $token): ?User
     {
@@ -43,6 +47,7 @@ class Client
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
+     * @throws InvalidObjectDataException
      */
     public function verifyFrontendToken(Token $token): ?User
     {
@@ -55,8 +60,9 @@ class Client
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
      * @throws UserAlreadyExistsException
+     * @throws InvalidObjectDataException
      */
-    public function createUser(string $adminToken, string $email, string $password): ?User
+    public function createUser(string $adminToken, string $email, string $password): User
     {
         try {
             $responseData = $this->serviceClient->sendRequestForJsonEncodedData(
@@ -78,7 +84,7 @@ class Client
         $userData = $responseData['user'] ?? [];
         $userData = is_array($userData) ? $userData : [];
 
-        return $this->objectFactory->createUserFromArray($userData);
+        return $this->createUserModel($userData);
     }
 
     /**
@@ -86,8 +92,9 @@ class Client
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
+     * @throws InvalidObjectDataException
      */
-    public function createFrontendToken(string $email, string $password): ?RefreshableToken
+    public function createFrontendToken(string $email, string $password): RefreshableToken
     {
         $responseData = $this->serviceClient->sendRequestForJsonEncodedData(
             (new Request('POST', $this->createUrl('/frontend/token/create')))
@@ -97,7 +104,7 @@ class Client
                 ]))
         );
 
-        return $this->objectFactory->createRefreshableTokenFromArray($responseData);
+        return $this->createRefreshableTokenModel($responseData);
     }
 
     /**
@@ -105,6 +112,7 @@ class Client
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
+     * @throws InvalidObjectDataException
      */
     public function listUserApiKeys(Token $token): ApiKeyCollection
     {
@@ -113,7 +121,15 @@ class Client
                 ->withAuthentication(new BearerAuthentication($token->token))
         );
 
-        return $this->objectFactory->createApiKeyCollectionFromArray($responseData);
+        $apiKeys = [];
+
+        foreach ($responseData as $apiKeyData) {
+            if (is_array($apiKeyData)) {
+                $apiKeys[] = $this->createApiKeyModel($apiKeyData);
+            }
+        }
+
+        return new ApiKeyCollection($apiKeys);
     }
 
     /**
@@ -121,6 +137,7 @@ class Client
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
+     * @throws InvalidObjectDataException
      */
     public function refreshFrontendToken(RefreshableToken $token): ?RefreshableToken
     {
@@ -137,7 +154,7 @@ class Client
             throw $nonSuccessResponseException;
         }
 
-        return $this->objectFactory->createRefreshableTokenFromArray($responseData);
+        return $this->createRefreshableTokenModel($responseData);
     }
 
     /**
@@ -145,6 +162,7 @@ class Client
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
+     * @throws InvalidObjectDataException
      */
     public function createApiToken(string $apiKey): ?Token
     {
@@ -153,7 +171,7 @@ class Client
                 ->withAuthentication(new Authentication($apiKey))
         );
 
-        return $this->objectFactory->createTokenFromArray($responseData);
+        return $this->createTokenModel($responseData);
     }
 
     /**
@@ -170,9 +188,82 @@ class Client
     }
 
     /**
+     * @param array<mixed> $data
+     *
+     * @throws InvalidObjectDataException
+     */
+    private function createUserModel(array $data): User
+    {
+        $objectDefinition = new UserDefinition();
+
+        $user = $this->objectFactory->create($objectDefinition, $data);
+
+        if (!$user instanceof User) {
+            throw new InvalidObjectDataException($data, $objectDefinition);
+        }
+
+        return $user;
+    }
+
+    /**
+     * @param array<mixed> $data
+     *
+     * @throws InvalidObjectDataException
+     */
+    private function createRefreshableTokenModel(array $data): RefreshableToken
+    {
+        $objectDefinition = new RefreshableTokenDefinition();
+
+        $refreshableToken = $this->objectFactory->create($objectDefinition, $data);
+
+        if (!$refreshableToken instanceof RefreshableToken) {
+            throw new InvalidObjectDataException($data, $objectDefinition);
+        }
+
+        return $refreshableToken;
+    }
+
+    /**
+     * @param array<mixed> $data
+     *
+     * @throws InvalidObjectDataException
+     */
+    private function createApiKeyModel(array $data): ApiKey
+    {
+        $objectDefinition = new ApiKeyDefinition();
+
+        $apiKey = $this->objectFactory->create($objectDefinition, $data);
+
+        if (!$apiKey instanceof ApiKey) {
+            throw new InvalidObjectDataException($data, $objectDefinition);
+        }
+
+        return $apiKey;
+    }
+
+    /**
+     * @param array<mixed> $data
+     *
+     * @throws InvalidObjectDataException
+     */
+    private function createTokenModel(array $data): Token
+    {
+        $objectDefinition = new TokenDefinition();
+
+        $token = $this->objectFactory->create($objectDefinition, $data);
+
+        if (!$token instanceof Token) {
+            throw new InvalidObjectDataException($data, $objectDefinition);
+        }
+
+        return $token;
+    }
+
+    /**
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
+     * @throws InvalidObjectDataException
      */
     private function makeTokenVerificationRequest(Token $token, string $url): ?User
     {
@@ -185,7 +276,7 @@ class Client
             return null;
         }
 
-        return $this->objectFactory->createUserFromArray($responseData);
+        return $this->createUserModel($responseData);
     }
 
     /**
