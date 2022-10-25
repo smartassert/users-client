@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3c1b53910019d2c07e0666c09dd7654e",
+    "content-hash": "034d95b1779b20f7cf027acda0dd73b3",
     "packages": [
         {
             "name": "psr/http-client",
@@ -167,29 +167,82 @@
             "time": "2016-08-06T14:39:51+00:00"
         },
         {
-            "name": "smartassert/service-client",
+            "name": "smartassert/security-token-extractor",
             "version": "0.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/smartassert/service-client.git",
-                "reference": "a3f9df8a087c84028a491519bc2ce3ed17347291"
+                "url": "https://github.com/smartassert/security-token-extractor.git",
+                "reference": "7e2b87083f4fe2a4bf10965c4eb8b2be43907b0e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/smartassert/service-client/zipball/a3f9df8a087c84028a491519bc2ce3ed17347291",
-                "reference": "a3f9df8a087c84028a491519bc2ce3ed17347291",
+                "url": "https://api.github.com/repos/smartassert/security-token-extractor/zipball/7e2b87083f4fe2a4bf10965c4eb8b2be43907b0e",
+                "reference": "7e2b87083f4fe2a4bf10965c4eb8b2be43907b0e",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.1",
+                "psr/http-message": "^1.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.5",
+                "phpstan/extension-installer": "^1.1",
+                "phpstan/phpstan": "^1.8",
+                "phpstan/phpstan-mockery": "^1.1",
+                "phpstan/phpstan-phpunit": "^1.1",
+                "phpunit/phpunit": "^9.5",
+                "squizlabs/php_codesniffer": "^3.7"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "SmartAssert\\SecurityTokenExtractor\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jon Cram",
+                    "email": "webignition@gmail.com"
+                }
+            ],
+            "homepage": "https://github.com/smartassert/security-token-extractor",
+            "support": {
+                "issues": "https://github.com/smartassert/security-token-extractor/issues",
+                "source": "https://github.com/smartassert/security-token-extractor/tree/0.2"
+            },
+            "time": "2022-09-29T15:05:48+00:00"
+        },
+        {
+            "name": "smartassert/service-client",
+            "version": "0.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/smartassert/service-client.git",
+                "reference": "377ef72669d3b16a2d9bab1e07f232af2c10ffc4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/smartassert/service-client/zipball/377ef72669d3b16a2d9bab1e07f232af2c10ffc4",
+                "reference": "377ef72669d3b16a2d9bab1e07f232af2c10ffc4",
                 "shasum": ""
             },
             "require": {
                 "php": "^8.1",
                 "psr/http-client": "^1.0",
                 "psr/http-factory": "^1.0",
-                "psr/http-message": "^1.0"
+                "psr/http-message": "^1.0",
+                "smartassert/security-token-extractor": ">=0.2,<1"
             },
             "require-dev": {
                 "guzzlehttp/guzzle": "^7.4",
+                "mockery/mockery": "^1.5",
                 "phpstan/extension-installer": "^1.1",
                 "phpstan/phpstan": "^1.8",
+                "phpstan/phpstan-mockery": "^1.1",
                 "phpstan/phpstan-phpunit": "^1.1",
                 "phpunit/phpunit": "^9.5",
                 "squizlabs/php_codesniffer": "^3.6",
@@ -215,9 +268,9 @@
             "homepage": "https://github.com/smartassert/service-client",
             "support": {
                 "issues": "https://github.com/smartassert/service-client/issues",
-                "source": "https://github.com/smartassert/service-client/tree/0.2"
+                "source": "https://github.com/smartassert/service-client/tree/0.7"
             },
-            "time": "2022-09-26T15:18:36+00:00"
+            "time": "2022-10-25T14:43:45+00:00"
         }
     ],
     "packages-dev": [

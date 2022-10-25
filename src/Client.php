@@ -10,7 +10,6 @@ use SmartAssert\ServiceClient\Authentication\BearerAuthentication;
 use SmartAssert\ServiceClient\Client as ServiceClient;
 use SmartAssert\ServiceClient\Exception\InvalidResponseContentException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
-use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\ServiceClient\Payload\JsonPayload;
 use SmartAssert\ServiceClient\Payload\UrlEncodedPayload;
 use SmartAssert\ServiceClient\Request;
@@ -53,28 +52,24 @@ class Client
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
-     * @throws NonSuccessResponseException
      * @throws UserAlreadyExistsException
      */
     public function createUser(string $adminToken, string $email, string $password): ?User
     {
-        try {
-            $responseData = $this->serviceClient->sendRequestForJsonEncodedData(
-                (new Request('POST', $this->createUrl('/admin/user/create')))
-                    ->withAuthentication(new Authentication($adminToken))
-                    ->withPayload(new UrlEncodedPayload([
-                        'email' => $email,
-                        'password' => $password,
-                    ]))
-            );
-        } catch (NonSuccessResponseException $nonSuccessResponseException) {
-            if (409 === $nonSuccessResponseException->getCode()) {
-                throw new UserAlreadyExistsException($email, $nonSuccessResponseException->response);
-            }
+        $response = $this->serviceClient->sendRequestForJsonEncodedData(
+            (new Request('POST', $this->createUrl('/admin/user/create')))
+                ->withAuthentication(new Authentication($adminToken))
+                ->withPayload(new UrlEncodedPayload([
+                    'email' => $email,
+                    'password' => $password,
+                ]))
+        );
 
-            throw $nonSuccessResponseException;
+        if (409 === $response->getHttpResponse()->getStatusCode()) {
+            throw new UserAlreadyExistsException($email, $response->getHttpResponse());
         }
 
+        $responseData = $response->getData();
         $userData = $responseData['user'] ?? [];
         $userData = is_array($userData) ? $userData : [];
 
@@ -85,11 +80,10 @@ class Client
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
-     * @throws NonSuccessResponseException
      */
     public function createFrontendToken(string $email, string $password): ?RefreshableToken
     {
-        $responseData = $this->serviceClient->sendRequestForJsonEncodedData(
+        $response = $this->serviceClient->sendRequestForJsonEncodedData(
             (new Request('POST', $this->createUrl('/frontend/token/create')))
                 ->withPayload(new JsonPayload([
                     'username' => $email,
@@ -97,68 +91,60 @@ class Client
                 ]))
         );
 
-        return $this->objectFactory->createRefreshableTokenFromArray($responseData);
+        return $this->objectFactory->createRefreshableTokenFromArray($response->getData());
     }
 
     /**
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
-     * @throws NonSuccessResponseException
      */
     public function listUserApiKeys(Token $token): ApiKeyCollection
     {
-        $responseData = $this->serviceClient->sendRequestForJsonEncodedData(
+        $response = $this->serviceClient->sendRequestForJsonEncodedData(
             (new Request('GET', $this->createUrl('/frontend/apikey/list')))
                 ->withAuthentication(new BearerAuthentication($token->token))
         );
 
-        return $this->objectFactory->createApiKeyCollectionFromArray($responseData);
+        return $this->objectFactory->createApiKeyCollectionFromArray($response->getData());
     }
 
     /**
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
-     * @throws NonSuccessResponseException
      */
     public function refreshFrontendToken(RefreshableToken $token): ?RefreshableToken
     {
-        try {
-            $responseData = $this->serviceClient->sendRequestForJsonEncodedData(
-                (new Request('POST', $this->createUrl('/frontend/token/refresh')))
-                    ->withPayload(new JsonPayload(['refresh_token' => $token->refreshToken]))
-            );
-        } catch (NonSuccessResponseException $nonSuccessResponseException) {
-            if (401 === $nonSuccessResponseException->getCode()) {
-                return null;
-            }
+        $response = $this->serviceClient->sendRequestForJsonEncodedData(
+            (new Request('POST', $this->createUrl('/frontend/token/refresh')))
+                ->withPayload(new JsonPayload(['refresh_token' => $token->refreshToken]))
+        );
 
-            throw $nonSuccessResponseException;
+        if (401 === $response->getHttpResponse()->getStatusCode()) {
+            return null;
         }
 
-        return $this->objectFactory->createRefreshableTokenFromArray($responseData);
+        return $this->objectFactory->createRefreshableTokenFromArray($response->getData());
     }
 
     /**
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
-     * @throws NonSuccessResponseException
      */
     public function createApiToken(string $apiKey): ?Token
     {
-        $responseData = $this->serviceClient->sendRequestForJsonEncodedData(
+        $response = $this->serviceClient->sendRequestForJsonEncodedData(
             (new Request('POST', $this->createUrl('/api/token/create')))
                 ->withAuthentication(new Authentication($apiKey))
         );
 
-        return $this->objectFactory->createTokenFromArray($responseData);
+        return $this->objectFactory->createTokenFromArray($response->getData());
     }
 
     /**
      * @throws ClientExceptionInterface
-     * @throws NonSuccessResponseException
      */
     public function revokeFrontendRefreshToken(string $adminToken, string $userId): void
     {
@@ -176,16 +162,16 @@ class Client
      */
     private function makeTokenVerificationRequest(Token $token, string $url): ?User
     {
-        try {
-            $responseData = $this->serviceClient->sendRequestForJsonEncodedData(
-                (new Request('GET', $url))
-                    ->withAuthentication(new BearerAuthentication($token->token))
-            );
-        } catch (NonSuccessResponseException) {
+        $response = $this->serviceClient->sendRequestForJsonEncodedData(
+            (new Request('GET', $url))
+                ->withAuthentication(new BearerAuthentication($token->token))
+        );
+
+        if (!$response->isSuccessful()) {
             return null;
         }
 
-        return $this->objectFactory->createUserFromArray($responseData);
+        return $this->objectFactory->createUserFromArray($response->getData());
     }
 
     /**
