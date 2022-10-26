@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SmartAssert\UsersClient;
 
 use Psr\Http\Client\ClientExceptionInterface;
+use SmartAssert\ArrayInspector\ArrayInspector;
 use SmartAssert\ServiceClient\Authentication\Authentication;
 use SmartAssert\ServiceClient\Authentication\BearerAuthentication;
 use SmartAssert\ServiceClient\Client as ServiceClient;
@@ -13,7 +14,9 @@ use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
 use SmartAssert\ServiceClient\Payload\JsonPayload;
 use SmartAssert\ServiceClient\Payload\UrlEncodedPayload;
 use SmartAssert\ServiceClient\Request;
+use SmartAssert\ServiceClient\Response\JsonResponse;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
+use SmartAssert\UsersClient\Model\ApiKey;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
 use SmartAssert\UsersClient\Model\RefreshableToken;
 use SmartAssert\UsersClient\Model\Token;
@@ -24,7 +27,6 @@ class Client
     public function __construct(
         private readonly string $baseUrl,
         private readonly ServiceClient $serviceClient,
-        private readonly ObjectFactory $objectFactory,
     ) {
     }
 
@@ -69,11 +71,10 @@ class Client
             throw new UserAlreadyExistsException($email, $response->getHttpResponse());
         }
 
-        $responseData = $response->getData();
-        $userData = $responseData['user'] ?? [];
-        $userData = is_array($userData) ? $userData : [];
+        $responseDataInspector = new ArrayInspector($response->getData());
+        $userData = $responseDataInspector->getArray('user');
 
-        return $this->objectFactory->createUserFromArray($userData);
+        return $this->createUserModel(new ArrayInspector($userData));
     }
 
     /**
@@ -91,7 +92,7 @@ class Client
                 ]))
         );
 
-        return $this->objectFactory->createRefreshableTokenFromArray($response->getData());
+        return $this->createRefreshableTokenModel($response);
     }
 
     /**
@@ -106,7 +107,27 @@ class Client
                 ->withAuthentication(new BearerAuthentication($token->token))
         );
 
-        return $this->objectFactory->createApiKeyCollectionFromArray($response->getData());
+        $responseDataInspector = new ArrayInspector($response->getData());
+
+        /**
+         * @var array<ApiKey> $apiKeys
+         */
+        $apiKeys = $responseDataInspector->each(
+            function ($key, mixed $value): ?ApiKey {
+                if (is_array($value)) {
+                    $valueInspector = new ArrayInspector($value);
+
+                    $apiKeyKey = $valueInspector->getString('key');
+                    if (is_string($apiKeyKey)) {
+                        return new ApiKey($valueInspector->getString('label'), $apiKeyKey);
+                    }
+                }
+
+                return null;
+            }
+        );
+
+        return new ApiKeyCollection($apiKeys);
     }
 
     /**
@@ -125,7 +146,7 @@ class Client
             return null;
         }
 
-        return $this->objectFactory->createRefreshableTokenFromArray($response->getData());
+        return $this->createRefreshableTokenModel($response);
     }
 
     /**
@@ -140,7 +161,10 @@ class Client
                 ->withAuthentication(new Authentication($apiKey))
         );
 
-        return $this->objectFactory->createTokenFromArray($response->getData());
+        $responseDataInspector = new ArrayInspector($response->getData());
+        $tokenValue = $responseDataInspector->getNonEmptyString('token');
+
+        return null === $tokenValue ? null : new Token($tokenValue);
     }
 
     /**
@@ -153,6 +177,20 @@ class Client
                 ->withAuthentication(new Authentication($adminToken))
                 ->withPayload(new UrlEncodedPayload(['id' => $userId]))
         );
+    }
+
+    /**
+     * @throws InvalidResponseContentException
+     * @throws InvalidResponseDataException
+     */
+    private function createRefreshableTokenModel(JsonResponse $response): ?RefreshableToken
+    {
+        $responseDataInspector = new ArrayInspector($response->getData());
+
+        $token = $responseDataInspector->getNonEmptyString('token');
+        $refreshToken = $responseDataInspector->getNonEmptyString('refresh_token');
+
+        return null === $token || null === $refreshToken ? null : new RefreshableToken($token, $refreshToken);
     }
 
     /**
@@ -171,7 +209,7 @@ class Client
             return null;
         }
 
-        return $this->objectFactory->createUserFromArray($response->getData());
+        return $this->createUserModel(new ArrayInspector($response->getData()));
     }
 
     /**
@@ -182,5 +220,13 @@ class Client
     private function createUrl(string $path): string
     {
         return rtrim($this->baseUrl, '/') . $path;
+    }
+
+    private function createUserModel(ArrayInspector $data): ?User
+    {
+        $id = $data->getString('id');
+        $userIdentifier = $data->getString('user-identifier');
+
+        return is_string($id) && is_string($userIdentifier) ? new User($id, $userIdentifier) : null;
     }
 }
