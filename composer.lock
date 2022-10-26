@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6bfcfcbf0544bc0481d8fb64562ce364",
+    "content-hash": "2ee88798d1394867210042f62d9efc28",
     "packages": [
         {
             "name": "psr/http-client",
@@ -165,6 +165,54 @@
                 "source": "https://github.com/php-fig/http-message/tree/master"
             },
             "time": "2016-08-06T14:39:51+00:00"
+        },
+        {
+            "name": "smartassert/array-inspector",
+            "version": "0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/smartassert/array-inspector.git",
+                "reference": "e7b8f5ef0bf18413c05dbf7f5fb41db6f3f34613"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/smartassert/array-inspector/zipball/e7b8f5ef0bf18413c05dbf7f5fb41db6f3f34613",
+                "reference": "e7b8f5ef0bf18413c05dbf7f5fb41db6f3f34613",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "phpstan/extension-installer": "^1.2",
+                "phpstan/phpstan": "^1.8",
+                "phpstan/phpstan-phpunit": "^1.1",
+                "phpunit/phpunit": "^9.5",
+                "squizlabs/php_codesniffer": "^3.7"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "SmartAssert\\ArrayInspector\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jon Cram",
+                    "email": "webignition@gmail.com"
+                }
+            ],
+            "description": "Get values from an array",
+            "homepage": "https://github.com/smartassert/array-inspector",
+            "support": {
+                "issues": "https://github.com/smartassert/array-inspector/issues",
+                "source": "https://github.com/smartassert/array-inspector/tree/0.1"
+            },
+            "time": "2022-10-26T15:48:16+00:00"
         },
         {
             "name": "smartassert/security-token-extractor",

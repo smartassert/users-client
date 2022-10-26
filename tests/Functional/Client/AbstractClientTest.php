@@ -13,7 +13,6 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use SmartAssert\ServiceClient\Client as ServiceClient;
 use SmartAssert\UsersClient\Client;
-use SmartAssert\UsersClient\ObjectFactory;
 use webignition\HttpHistoryContainer\Container as HttpHistoryContainer;
 
 abstract class AbstractClientTest extends TestCase
@@ -42,7 +41,6 @@ abstract class AbstractClientTest extends TestCase
                 $httpFactory,
                 new HttpClient(['handler' => $handlerStack]),
             ),
-            new ObjectFactory(),
         );
     }
 
