@@ -51,7 +51,7 @@ class CreateApiTokenTest extends AbstractClientTest
         }
     }
 
-    public function testCreateFrontendTokenInvalidResponseData(): void
+    public function testCreateApiTokenInvalidResponseData(): void
     {
         $this->doInvalidResponseDataTest(
             function () {

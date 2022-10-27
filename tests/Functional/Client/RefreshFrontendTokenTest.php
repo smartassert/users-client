@@ -51,7 +51,7 @@ class RefreshFrontendTokenTest extends AbstractClientTest
         }
     }
 
-    public function testCreateFrontendTokenInvalidResponseData(): void
+    public function testRefreshFrontendTokenInvalidResponseData(): void
     {
         $this->doInvalidResponseDataTest(
             function () {
