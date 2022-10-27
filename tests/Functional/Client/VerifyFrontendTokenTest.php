@@ -8,6 +8,7 @@ use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7\Request;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
+use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\UsersClient\Model\Token;
 use SmartAssert\UsersClient\Model\User;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\TokenVerificationDataProviderTrait;
@@ -26,7 +27,22 @@ class VerifyFrontendTokenTest extends AbstractClientTest
     }
 
     /**
-     * @dataProvider verifyTokenDataProvider
+     * @dataProvider verifyTokenThrowsNonSuccessResponseExceptionDataProvider
+     */
+    public function testVerifyApiTokenThrowsNonSuccessResponseException(ResponseInterface $httpFixture): void
+    {
+        $this->mockHandler->append($httpFixture);
+
+        try {
+            $this->client->verifyFrontendToken(new Token('token'));
+            self::fail(NonSuccessResponseException::class . ' not thrown');
+        } catch (NonSuccessResponseException $e) {
+            self::assertSame($httpFixture, $e->response);
+        }
+    }
+
+    /**
+     * @dataProvider verifyTokenSuccessDataProvider
      */
     public function testVerifyFrontendToken(ResponseInterface $httpFixture, ?User $expected): void
     {

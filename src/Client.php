@@ -11,6 +11,7 @@ use SmartAssert\ServiceClient\Authentication\BearerAuthentication;
 use SmartAssert\ServiceClient\Client as ServiceClient;
 use SmartAssert\ServiceClient\Exception\InvalidResponseContentException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
+use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\ServiceClient\Payload\JsonPayload;
 use SmartAssert\ServiceClient\Payload\UrlEncodedPayload;
 use SmartAssert\ServiceClient\Request;
@@ -34,6 +35,7 @@ class Client
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
+     * @throws NonSuccessResponseException
      */
     public function verifyApiToken(Token $token): ?User
     {
@@ -44,6 +46,7 @@ class Client
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
+     * @throws NonSuccessResponseException
      */
     public function verifyFrontendToken(Token $token): ?User
     {
@@ -197,6 +200,7 @@ class Client
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
+     * @throws NonSuccessResponseException
      */
     private function makeTokenVerificationRequest(Token $token, string $url): ?User
     {
@@ -205,8 +209,12 @@ class Client
                 ->withAuthentication(new BearerAuthentication($token->token))
         );
 
-        if (!$response->isSuccessful()) {
+        if (401 === $response->getStatusCode()) {
             return null;
+        }
+
+        if (!$response->isSuccessful()) {
+            throw new NonSuccessResponseException($response->getHttpResponse());
         }
 
         return $this->createUserModel(new ArrayInspector($response->getData()));

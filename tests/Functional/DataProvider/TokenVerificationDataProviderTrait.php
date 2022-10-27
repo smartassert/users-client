@@ -12,7 +12,7 @@ trait TokenVerificationDataProviderTrait
     /**
      * @return array<mixed>
      */
-    public function verifyTokenDataProvider(): array
+    public function verifyTokenSuccessDataProvider(): array
     {
         $userId = md5((string) rand());
         $userEmail = md5((string) rand()) . '@example.com';
@@ -22,10 +22,6 @@ trait TokenVerificationDataProviderTrait
                 'httpFixture' => new Response(401),
                 'expectedReturnValue' => null,
             ],
-            'unverified, HTTP 500' => [
-                'httpFixture' => new Response(500),
-                'expectedReturnValue' => null,
-            ],
             'verified' => [
                 'httpFixture' => new Response(
                     200,
@@ -33,6 +29,19 @@ trait TokenVerificationDataProviderTrait
                     (string) json_encode(['id' => $userId, 'user-identifier' => $userEmail])
                 ),
                 'expectedReturnValue' => new User($userId, $userEmail),
+            ],
+        ];
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function verifyTokenThrowsNonSuccessResponseExceptionDataProvider(): array
+    {
+        return [
+            'unverified, HTTP 500' => [
+                'httpFixture' => new Response(500),
+                'expectedReturnValue' => null,
             ],
         ];
     }
