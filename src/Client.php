@@ -37,6 +37,7 @@ class Client
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
+     * @throws InvalidModelDataException
      */
     public function verifyApiToken(Token $token): ?User
     {
@@ -48,6 +49,7 @@ class Client
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
+     * @throws InvalidModelDataException
      */
     public function verifyFrontendToken(Token $token): ?User
     {
@@ -255,6 +257,7 @@ class Client
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
+     * @throws InvalidModelDataException
      */
     private function makeTokenVerificationRequest(Token $token, string $url): ?User
     {
