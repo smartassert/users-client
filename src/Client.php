@@ -197,14 +197,19 @@ class Client
 
     /**
      * @throws ClientExceptionInterface
+     * @throws NonSuccessResponseException
      */
     public function revokeFrontendRefreshToken(string $adminToken, string $userId): void
     {
-        $this->serviceClient->sendRequest(
+        $response = $this->serviceClient->sendRequest(
             (new Request('POST', $this->createUrl('/admin/frontend/refresh-token/revoke')))
                 ->withAuthentication(new Authentication($adminToken))
                 ->withPayload(new UrlEncodedPayload(['id' => $userId]))
         );
+
+        if (!$response->isSuccessful()) {
+            throw new NonSuccessResponseException($response->getHttpResponse());
+        }
     }
 
     /**
