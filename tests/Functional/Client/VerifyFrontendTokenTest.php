@@ -11,10 +11,12 @@ use Psr\Http\Message\ResponseInterface;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\UsersClient\Model\Token;
 use SmartAssert\UsersClient\Model\User;
+use SmartAssert\UsersClient\Tests\Functional\DataProvider\CommonNonSuccessResponseDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\TokenVerificationDataProviderTrait;
 
 class VerifyFrontendTokenTest extends AbstractClientTest
 {
+    use CommonNonSuccessResponseDataProviderTrait;
     use TokenVerificationDataProviderTrait;
 
     public function testVerifyFrontendTokenThrowsClientExceptionInterface(): void
@@ -27,7 +29,7 @@ class VerifyFrontendTokenTest extends AbstractClientTest
     }
 
     /**
-     * @dataProvider verifyTokenThrowsNonSuccessResponseExceptionDataProvider
+     * @dataProvider commonNonSuccessResponseDataProvider
      */
     public function testVerifyApiTokenThrowsNonSuccessResponseException(ResponseInterface $httpFixture): void
     {

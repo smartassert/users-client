@@ -58,6 +58,7 @@ class Client
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      * @throws UserAlreadyExistsException
+     * @throws NonSuccessResponseException
      */
     public function createUser(string $adminToken, string $email, string $password): ?User
     {
@@ -70,8 +71,12 @@ class Client
                 ]))
         );
 
-        if (409 === $response->getHttpResponse()->getStatusCode()) {
+        if (409 === $response->getStatusCode()) {
             throw new UserAlreadyExistsException($email, $response->getHttpResponse());
+        }
+
+        if (!$response->isSuccessful()) {
+            throw new NonSuccessResponseException($response->getHttpResponse());
         }
 
         $responseDataInspector = new ArrayInspector($response->getData());

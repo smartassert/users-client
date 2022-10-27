@@ -32,17 +32,4 @@ trait TokenVerificationDataProviderTrait
             ],
         ];
     }
-
-    /**
-     * @return array<mixed>
-     */
-    public function verifyTokenThrowsNonSuccessResponseExceptionDataProvider(): array
-    {
-        return [
-            'unverified, HTTP 500' => [
-                'httpFixture' => new Response(500),
-                'expectedReturnValue' => null,
-            ],
-        ];
-    }
 }
