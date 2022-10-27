@@ -166,6 +166,7 @@ class Client
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
+     * @throws InvalidModelDataException
      */
     public function refreshFrontendToken(RefreshableToken $token): ?RefreshableToken
     {
@@ -180,6 +181,11 @@ class Client
 
         if (!$response->isSuccessful()) {
             throw new NonSuccessResponseException($response->getHttpResponse());
+        }
+
+        $token = $this->createRefreshableTokenModel($response);
+        if (null === $token) {
+            throw InvalidModelDataException::fromJsonResponse(RefreshableToken::class, $response);
         }
 
         return $this->createRefreshableTokenModel($response);

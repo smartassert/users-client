@@ -51,6 +51,16 @@ class RefreshFrontendTokenTest extends AbstractClientTest
         }
     }
 
+    public function testCreateFrontendTokenInvalidResponseData(): void
+    {
+        $this->doInvalidResponseDataTest(
+            function () {
+                $this->client->refreshFrontendToken(new RefreshableToken(md5((string) rand()), md5((string) rand())));
+            },
+            RefreshableToken::class
+        );
+    }
+
     /**
      * @dataProvider refreshFrontendTokenSuccessDataProvider
      */
