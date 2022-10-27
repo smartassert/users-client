@@ -89,6 +89,7 @@ class Client
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
+     * @throws NonSuccessResponseException
      */
     public function createFrontendToken(string $email, string $password): ?RefreshableToken
     {
@@ -99,6 +100,10 @@ class Client
                     'password' => $password,
                 ]))
         );
+
+        if (!$response->isSuccessful()) {
+            throw new NonSuccessResponseException($response->getHttpResponse());
+        }
 
         return $this->createRefreshableTokenModel($response);
     }

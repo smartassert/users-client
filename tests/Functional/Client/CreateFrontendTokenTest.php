@@ -7,14 +7,17 @@ namespace SmartAssert\UsersClient\Tests\Functional\Client;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
+use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\UsersClient\Model\RefreshableToken;
+use SmartAssert\UsersClient\Tests\Functional\DataProvider\CommonNonSuccessResponseDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\InvalidJsonResponseExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
 
 class CreateFrontendTokenTest extends AbstractClientTest
 {
-    use NetworkErrorExceptionDataProviderTrait;
+    use CommonNonSuccessResponseDataProviderTrait;
     use InvalidJsonResponseExceptionDataProviderTrait;
+    use NetworkErrorExceptionDataProviderTrait;
 
     /**
      * @dataProvider networkErrorExceptionDataProvider
@@ -31,6 +34,21 @@ class CreateFrontendTokenTest extends AbstractClientTest
         $this->expectException($expectedExceptionClass);
 
         $this->client->createFrontendToken('email', 'password');
+    }
+
+    /**
+     * @dataProvider commonNonSuccessResponseDataProvider
+     */
+    public function testCreateFrontendTokenThrowsNonSuccessResponseException(ResponseInterface $httpFixture): void
+    {
+        $this->mockHandler->append($httpFixture);
+
+        try {
+            $this->client->createFrontendToken('email', 'password');
+            self::fail(NonSuccessResponseException::class . ' not thrown');
+        } catch (NonSuccessResponseException $e) {
+            self::assertSame($httpFixture, $e->response);
+        }
     }
 
     /**
