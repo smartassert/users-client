@@ -86,7 +86,7 @@ class Client
 
         $user = $this->createUserModel(new ArrayInspector($userData));
         if (null === $user) {
-            throw new InvalidModelDataException(User::class, $response->getHttpResponse(), $response->getData());
+            throw InvalidModelDataException::fromJsonResponse(User::class, $response);
         }
 
         return $user;
@@ -97,8 +97,9 @@ class Client
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
+     * @throws InvalidModelDataException
      */
-    public function createFrontendToken(string $email, string $password): ?RefreshableToken
+    public function createFrontendToken(string $email, string $password): RefreshableToken
     {
         $response = $this->serviceClient->sendRequestForJsonEncodedData(
             (new Request('POST', $this->createUrl('/frontend/token/create')))
@@ -112,7 +113,12 @@ class Client
             throw new NonSuccessResponseException($response->getHttpResponse());
         }
 
-        return $this->createRefreshableTokenModel($response);
+        $token = $this->createRefreshableTokenModel($response);
+        if (null === $token) {
+            throw InvalidModelDataException::fromJsonResponse(RefreshableToken::class, $response);
+        }
+
+        return $token;
     }
 
     /**

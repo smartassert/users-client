@@ -51,6 +51,16 @@ class CreateFrontendTokenTest extends AbstractClientTest
         }
     }
 
+    public function testCreateFrontendTokenInvalidResponseData(): void
+    {
+        $this->doInvalidResponseDataTest(
+            function () {
+                $this->client->createFrontendToken('email', 'password');
+            },
+            RefreshableToken::class
+        );
+    }
+
     /**
      * @dataProvider createFrontendTokenSuccessDataProvider
      */
