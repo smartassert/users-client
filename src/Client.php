@@ -196,6 +196,7 @@ class Client
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
+     * @throws InvalidModelDataException
      */
     public function createApiToken(string $apiKey): ?Token
     {
@@ -211,7 +212,11 @@ class Client
         $responseDataInspector = new ArrayInspector($response->getData());
         $tokenValue = $responseDataInspector->getNonEmptyString('token');
 
-        return null === $tokenValue ? null : new Token($tokenValue);
+        if (null === $tokenValue) {
+            throw InvalidModelDataException::fromJsonResponse(Token::class, $response);
+        }
+
+        return new Token($tokenValue);
     }
 
     /**

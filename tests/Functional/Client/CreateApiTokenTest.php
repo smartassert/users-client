@@ -51,6 +51,16 @@ class CreateApiTokenTest extends AbstractClientTest
         }
     }
 
+    public function testCreateFrontendTokenInvalidResponseData(): void
+    {
+        $this->doInvalidResponseDataTest(
+            function () {
+                $this->client->createApiToken('api key');
+            },
+            Token::class
+        );
+    }
+
     /**
      * @dataProvider createApiTokenSuccessDataProvider
      */
