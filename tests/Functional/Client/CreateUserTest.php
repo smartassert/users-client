@@ -8,6 +8,7 @@ use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
+use SmartAssert\UsersClient\Exception\InvalidModelDataException;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 use SmartAssert\UsersClient\Model\User;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\CommonNonSuccessResponseDataProviderTrait;
@@ -49,6 +50,23 @@ class CreateUserTest extends AbstractClientTest
                 'expectedExceptionClass' => UserAlreadyExistsException::class,
             ],
         ];
+    }
+
+    public function testCreateUserInvalidResponseData(): void
+    {
+        $responsePayload = ['key' => 'value'];
+        $response = new Response(200, ['content-type' => 'application/json'], (string) json_encode($responsePayload));
+
+        $this->mockHandler->append($response);
+
+        try {
+            $this->client->createUser('admin token', 'email', 'password');
+            self::fail(InvalidModelDataException::class . ' not thrown');
+        } catch (InvalidModelDataException $e) {
+            self::assertSame(User::class, $e->class);
+            self::assertSame($response, $e->response);
+            self::assertSame($responsePayload, $e->payload);
+        }
     }
 
     /**

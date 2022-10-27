@@ -16,6 +16,7 @@ use SmartAssert\ServiceClient\Payload\JsonPayload;
 use SmartAssert\ServiceClient\Payload\UrlEncodedPayload;
 use SmartAssert\ServiceClient\Request;
 use SmartAssert\ServiceClient\Response\JsonResponse;
+use SmartAssert\UsersClient\Exception\InvalidModelDataException;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 use SmartAssert\UsersClient\Model\ApiKey;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
@@ -59,8 +60,9 @@ class Client
      * @throws InvalidResponseDataException
      * @throws UserAlreadyExistsException
      * @throws NonSuccessResponseException
+     * @throws InvalidModelDataException
      */
-    public function createUser(string $adminToken, string $email, string $password): ?User
+    public function createUser(string $adminToken, string $email, string $password): User
     {
         $response = $this->serviceClient->sendRequestForJsonEncodedData(
             (new Request('POST', $this->createUrl('/admin/user/create')))
@@ -82,7 +84,12 @@ class Client
         $responseDataInspector = new ArrayInspector($response->getData());
         $userData = $responseDataInspector->getArray('user');
 
-        return $this->createUserModel(new ArrayInspector($userData));
+        $user = $this->createUserModel(new ArrayInspector($userData));
+        if (null === $user) {
+            throw new InvalidModelDataException(User::class, $response->getHttpResponse(), $response->getData());
+        }
+
+        return $user;
     }
 
     /**
