@@ -112,6 +112,7 @@ class Client
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
+     * @throws NonSuccessResponseException
      */
     public function listUserApiKeys(Token $token): ApiKeyCollection
     {
@@ -119,6 +120,10 @@ class Client
             (new Request('GET', $this->createUrl('/frontend/apikey/list')))
                 ->withAuthentication(new BearerAuthentication($token->token))
         );
+
+        if (!$response->isSuccessful()) {
+            throw new NonSuccessResponseException($response->getHttpResponse());
+        }
 
         $responseDataInspector = new ArrayInspector($response->getData());
 
