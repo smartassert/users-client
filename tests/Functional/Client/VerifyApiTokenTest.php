@@ -43,6 +43,16 @@ class VerifyApiTokenTest extends AbstractClientTest
         }
     }
 
+    public function testVerifyApiTokenInvalidResponseData(): void
+    {
+        $this->doInvalidResponseDataTest(
+            function () {
+                $this->client->verifyApiToken(new Token('token'));
+            },
+            User::class
+        );
+    }
+
     /**
      * @dataProvider verifyTokenSuccessDataProvider
      */
