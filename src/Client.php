@@ -271,7 +271,12 @@ class Client
             throw new NonSuccessResponseException($response->getHttpResponse());
         }
 
-        return $this->createUserModel(new ArrayInspector($response->getData()));
+        $user = $this->createUserModel(new ArrayInspector($response->getData()));
+        if (null === $user) {
+            throw InvalidModelDataException::fromJsonResponse(User::class, $response);
+        }
+
+        return $user;
     }
 
     /**
