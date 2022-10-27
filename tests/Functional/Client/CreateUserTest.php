@@ -51,6 +51,16 @@ class CreateUserTest extends AbstractClientTest
         ];
     }
 
+    public function testCreateUserInvalidResponseData(): void
+    {
+        $this->doInvalidResponseDataTest(
+            function () {
+                $this->client->createUser('admin token', 'email', 'password');
+            },
+            User::class
+        );
+    }
+
     /**
      * @dataProvider commonNonSuccessResponseDataProvider
      */

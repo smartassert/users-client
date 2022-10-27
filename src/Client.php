@@ -16,6 +16,7 @@ use SmartAssert\ServiceClient\Payload\JsonPayload;
 use SmartAssert\ServiceClient\Payload\UrlEncodedPayload;
 use SmartAssert\ServiceClient\Request;
 use SmartAssert\ServiceClient\Response\JsonResponse;
+use SmartAssert\UsersClient\Exception\InvalidModelDataException;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 use SmartAssert\UsersClient\Model\ApiKey;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
@@ -59,8 +60,9 @@ class Client
      * @throws InvalidResponseDataException
      * @throws UserAlreadyExistsException
      * @throws NonSuccessResponseException
+     * @throws InvalidModelDataException
      */
-    public function createUser(string $adminToken, string $email, string $password): ?User
+    public function createUser(string $adminToken, string $email, string $password): User
     {
         $response = $this->serviceClient->sendRequestForJsonEncodedData(
             (new Request('POST', $this->createUrl('/admin/user/create')))
@@ -82,7 +84,12 @@ class Client
         $responseDataInspector = new ArrayInspector($response->getData());
         $userData = $responseDataInspector->getArray('user');
 
-        return $this->createUserModel(new ArrayInspector($userData));
+        $user = $this->createUserModel(new ArrayInspector($userData));
+        if (null === $user) {
+            throw InvalidModelDataException::fromJsonResponse(User::class, $response);
+        }
+
+        return $user;
     }
 
     /**
@@ -90,8 +97,9 @@ class Client
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
+     * @throws InvalidModelDataException
      */
-    public function createFrontendToken(string $email, string $password): ?RefreshableToken
+    public function createFrontendToken(string $email, string $password): RefreshableToken
     {
         $response = $this->serviceClient->sendRequestForJsonEncodedData(
             (new Request('POST', $this->createUrl('/frontend/token/create')))
@@ -105,7 +113,12 @@ class Client
             throw new NonSuccessResponseException($response->getHttpResponse());
         }
 
-        return $this->createRefreshableTokenModel($response);
+        $token = $this->createRefreshableTokenModel($response);
+        if (null === $token) {
+            throw InvalidModelDataException::fromJsonResponse(RefreshableToken::class, $response);
+        }
+
+        return $token;
     }
 
     /**
@@ -153,6 +166,7 @@ class Client
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
+     * @throws InvalidModelDataException
      */
     public function refreshFrontendToken(RefreshableToken $token): ?RefreshableToken
     {
@@ -169,6 +183,11 @@ class Client
             throw new NonSuccessResponseException($response->getHttpResponse());
         }
 
+        $token = $this->createRefreshableTokenModel($response);
+        if (null === $token) {
+            throw InvalidModelDataException::fromJsonResponse(RefreshableToken::class, $response);
+        }
+
         return $this->createRefreshableTokenModel($response);
     }
 
@@ -177,6 +196,7 @@ class Client
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
+     * @throws InvalidModelDataException
      */
     public function createApiToken(string $apiKey): ?Token
     {
@@ -192,7 +212,11 @@ class Client
         $responseDataInspector = new ArrayInspector($response->getData());
         $tokenValue = $responseDataInspector->getNonEmptyString('token');
 
-        return null === $tokenValue ? null : new Token($tokenValue);
+        if (null === $tokenValue) {
+            throw InvalidModelDataException::fromJsonResponse(Token::class, $response);
+        }
+
+        return new Token($tokenValue);
     }
 
     /**

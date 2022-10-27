@@ -9,10 +9,12 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\HttpFactory;
+use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use SmartAssert\ServiceClient\Client as ServiceClient;
 use SmartAssert\UsersClient\Client;
+use SmartAssert\UsersClient\Exception\InvalidModelDataException;
 use webignition\HttpHistoryContainer\Container as HttpHistoryContainer;
 
 abstract class AbstractClientTest extends TestCase
@@ -50,5 +52,25 @@ abstract class AbstractClientTest extends TestCase
         \assert($request instanceof RequestInterface);
 
         return $request;
+    }
+
+    /**
+     * @param class-string $expectedClass
+     */
+    protected function doInvalidResponseDataTest(callable $action, string $expectedClass): void
+    {
+        $responsePayload = ['key' => 'value'];
+        $response = new Response(200, ['content-type' => 'application/json'], (string) json_encode($responsePayload));
+
+        $this->mockHandler->append($response);
+
+        try {
+            $action();
+            self::fail(InvalidModelDataException::class . ' not thrown');
+        } catch (InvalidModelDataException $e) {
+            self::assertSame($expectedClass, $e->class);
+            self::assertSame($response, $e->response);
+            self::assertSame($responsePayload, $e->payload);
+        }
     }
 }
