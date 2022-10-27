@@ -7,15 +7,18 @@ namespace SmartAssert\UsersClient\Tests\Functional\Client;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
+use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 use SmartAssert\UsersClient\Model\User;
+use SmartAssert\UsersClient\Tests\Functional\DataProvider\CommonNonSuccessResponseDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\InvalidJsonResponseExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
 
 class CreateUserTest extends AbstractClientTest
 {
-    use NetworkErrorExceptionDataProviderTrait;
+    use CommonNonSuccessResponseDataProviderTrait;
     use InvalidJsonResponseExceptionDataProviderTrait;
+    use NetworkErrorExceptionDataProviderTrait;
 
     /**
      * @dataProvider networkErrorExceptionDataProvider
@@ -46,6 +49,21 @@ class CreateUserTest extends AbstractClientTest
                 'expectedExceptionClass' => UserAlreadyExistsException::class,
             ],
         ];
+    }
+
+    /**
+     * @dataProvider commonNonSuccessResponseDataProvider
+     */
+    public function testCreateUserThrowsNonSuccessResponseException(ResponseInterface $httpFixture): void
+    {
+        $this->mockHandler->append($httpFixture);
+
+        try {
+            $this->client->createUser('admin token', 'email', 'password');
+            self::fail(NonSuccessResponseException::class . ' not thrown');
+        } catch (NonSuccessResponseException $e) {
+            self::assertSame($httpFixture, $e->response);
+        }
     }
 
     /**

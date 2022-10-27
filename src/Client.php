@@ -11,6 +11,7 @@ use SmartAssert\ServiceClient\Authentication\BearerAuthentication;
 use SmartAssert\ServiceClient\Client as ServiceClient;
 use SmartAssert\ServiceClient\Exception\InvalidResponseContentException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
+use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\ServiceClient\Payload\JsonPayload;
 use SmartAssert\ServiceClient\Payload\UrlEncodedPayload;
 use SmartAssert\ServiceClient\Request;
@@ -34,6 +35,7 @@ class Client
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
+     * @throws NonSuccessResponseException
      */
     public function verifyApiToken(Token $token): ?User
     {
@@ -44,6 +46,7 @@ class Client
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
+     * @throws NonSuccessResponseException
      */
     public function verifyFrontendToken(Token $token): ?User
     {
@@ -55,6 +58,7 @@ class Client
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      * @throws UserAlreadyExistsException
+     * @throws NonSuccessResponseException
      */
     public function createUser(string $adminToken, string $email, string $password): ?User
     {
@@ -67,8 +71,12 @@ class Client
                 ]))
         );
 
-        if (409 === $response->getHttpResponse()->getStatusCode()) {
+        if (409 === $response->getStatusCode()) {
             throw new UserAlreadyExistsException($email, $response->getHttpResponse());
+        }
+
+        if (!$response->isSuccessful()) {
+            throw new NonSuccessResponseException($response->getHttpResponse());
         }
 
         $responseDataInspector = new ArrayInspector($response->getData());
@@ -81,6 +89,7 @@ class Client
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
+     * @throws NonSuccessResponseException
      */
     public function createFrontendToken(string $email, string $password): ?RefreshableToken
     {
@@ -92,6 +101,10 @@ class Client
                 ]))
         );
 
+        if (!$response->isSuccessful()) {
+            throw new NonSuccessResponseException($response->getHttpResponse());
+        }
+
         return $this->createRefreshableTokenModel($response);
     }
 
@@ -99,6 +112,7 @@ class Client
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
+     * @throws NonSuccessResponseException
      */
     public function listUserApiKeys(Token $token): ApiKeyCollection
     {
@@ -106,6 +120,10 @@ class Client
             (new Request('GET', $this->createUrl('/frontend/apikey/list')))
                 ->withAuthentication(new BearerAuthentication($token->token))
         );
+
+        if (!$response->isSuccessful()) {
+            throw new NonSuccessResponseException($response->getHttpResponse());
+        }
 
         $responseDataInspector = new ArrayInspector($response->getData());
 
@@ -134,6 +152,7 @@ class Client
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
+     * @throws NonSuccessResponseException
      */
     public function refreshFrontendToken(RefreshableToken $token): ?RefreshableToken
     {
@@ -142,8 +161,12 @@ class Client
                 ->withPayload(new JsonPayload(['refresh_token' => $token->refreshToken]))
         );
 
-        if (401 === $response->getHttpResponse()->getStatusCode()) {
+        if (401 === $response->getStatusCode()) {
             return null;
+        }
+
+        if (!$response->isSuccessful()) {
+            throw new NonSuccessResponseException($response->getHttpResponse());
         }
 
         return $this->createRefreshableTokenModel($response);
@@ -153,6 +176,7 @@ class Client
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
+     * @throws NonSuccessResponseException
      */
     public function createApiToken(string $apiKey): ?Token
     {
@@ -160,6 +184,10 @@ class Client
             (new Request('POST', $this->createUrl('/api/token/create')))
                 ->withAuthentication(new Authentication($apiKey))
         );
+
+        if (!$response->isSuccessful()) {
+            throw new NonSuccessResponseException($response->getHttpResponse());
+        }
 
         $responseDataInspector = new ArrayInspector($response->getData());
         $tokenValue = $responseDataInspector->getNonEmptyString('token');
@@ -169,14 +197,19 @@ class Client
 
     /**
      * @throws ClientExceptionInterface
+     * @throws NonSuccessResponseException
      */
     public function revokeFrontendRefreshToken(string $adminToken, string $userId): void
     {
-        $this->serviceClient->sendRequest(
+        $response = $this->serviceClient->sendRequest(
             (new Request('POST', $this->createUrl('/admin/frontend/refresh-token/revoke')))
                 ->withAuthentication(new Authentication($adminToken))
                 ->withPayload(new UrlEncodedPayload(['id' => $userId]))
         );
+
+        if (!$response->isSuccessful()) {
+            throw new NonSuccessResponseException($response->getHttpResponse());
+        }
     }
 
     /**
@@ -197,6 +230,7 @@ class Client
      * @throws ClientExceptionInterface
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
+     * @throws NonSuccessResponseException
      */
     private function makeTokenVerificationRequest(Token $token, string $url): ?User
     {
@@ -205,8 +239,12 @@ class Client
                 ->withAuthentication(new BearerAuthentication($token->token))
         );
 
-        if (!$response->isSuccessful()) {
+        if (401 === $response->getStatusCode()) {
             return null;
+        }
+
+        if (!$response->isSuccessful()) {
+            throw new NonSuccessResponseException($response->getHttpResponse());
         }
 
         return $this->createUserModel(new ArrayInspector($response->getData()));

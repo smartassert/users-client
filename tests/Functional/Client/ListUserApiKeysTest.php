@@ -7,16 +7,19 @@ namespace SmartAssert\UsersClient\Tests\Functional\Client;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
+use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\UsersClient\Model\ApiKey;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
 use SmartAssert\UsersClient\Model\Token;
+use SmartAssert\UsersClient\Tests\Functional\DataProvider\CommonNonSuccessResponseDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\InvalidJsonResponseExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
 
 class ListUserApiKeysTest extends AbstractClientTest
 {
-    use NetworkErrorExceptionDataProviderTrait;
+    use CommonNonSuccessResponseDataProviderTrait;
     use InvalidJsonResponseExceptionDataProviderTrait;
+    use NetworkErrorExceptionDataProviderTrait;
 
     /**
      * @dataProvider networkErrorExceptionDataProvider
@@ -24,7 +27,7 @@ class ListUserApiKeysTest extends AbstractClientTest
      *
      * @param class-string<\Throwable> $expectedExceptionClass
      */
-    public function testCreateUserThrowsException(
+    public function testListUserApiKeysThrowsException(
         ResponseInterface|ClientExceptionInterface $httpFixture,
         string $expectedExceptionClass,
     ): void {
@@ -36,9 +39,24 @@ class ListUserApiKeysTest extends AbstractClientTest
     }
 
     /**
-     * @dataProvider listApiKeysSuccessDataProvider
+     * @dataProvider commonNonSuccessResponseDataProvider
      */
-    public function testListApiKeySuccess(ResponseInterface $httpFixture, ApiKeyCollection $expected): void
+    public function testListUserApiKeysThrowsNonSuccessResponseException(ResponseInterface $httpFixture): void
+    {
+        $this->mockHandler->append($httpFixture);
+
+        try {
+            $this->client->listUserApiKeys(new Token('token'));
+            self::fail(NonSuccessResponseException::class . ' not thrown');
+        } catch (NonSuccessResponseException $e) {
+            self::assertSame($httpFixture, $e->response);
+        }
+    }
+
+    /**
+     * @dataProvider listUserApiKeysSuccessDataProvider
+     */
+    public function testListUserApiKeysSuccess(ResponseInterface $httpFixture, ApiKeyCollection $expected): void
     {
         $token = new Token(md5((string) rand()));
 
@@ -55,7 +73,7 @@ class ListUserApiKeysTest extends AbstractClientTest
     /**
      * @return array<mixed>
      */
-    public function listApiKeysSuccessDataProvider(): array
+    public function listUserApiKeysSuccessDataProvider(): array
     {
         return [
             'single' => [

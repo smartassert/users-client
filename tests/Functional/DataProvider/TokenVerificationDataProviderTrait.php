@@ -12,7 +12,7 @@ trait TokenVerificationDataProviderTrait
     /**
      * @return array<mixed>
      */
-    public function verifyTokenDataProvider(): array
+    public function verifyTokenSuccessDataProvider(): array
     {
         $userId = md5((string) rand());
         $userEmail = md5((string) rand()) . '@example.com';
@@ -20,10 +20,6 @@ trait TokenVerificationDataProviderTrait
         return [
             'unverified, HTTP 401' => [
                 'httpFixture' => new Response(401),
-                'expectedReturnValue' => null,
-            ],
-            'unverified, HTTP 500' => [
-                'httpFixture' => new Response(500),
                 'expectedReturnValue' => null,
             ],
             'verified' => [
