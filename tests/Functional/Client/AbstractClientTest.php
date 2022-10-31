@@ -13,8 +13,8 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use SmartAssert\ServiceClient\Client as ServiceClient;
+use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
 use SmartAssert\UsersClient\Client;
-use SmartAssert\UsersClient\Exception\InvalidModelDataException;
 use webignition\HttpHistoryContainer\Container as HttpHistoryContainer;
 
 abstract class AbstractClientTest extends TestCase
