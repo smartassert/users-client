@@ -294,9 +294,13 @@ class Client
 
     private function createUserModel(ArrayInspector $data): ?User
     {
-        $id = $data->getString('id');
-        $userIdentifier = $data->getString('user-identifier');
+        $id = $data->getNonEmptyString('id');
+        $userIdentifier = $data->getNonEmptyString('user-identifier');
 
-        return is_string($id) && is_string($userIdentifier) ? new User($id, $userIdentifier) : null;
+        if (null === $id || null === $userIdentifier) {
+            return null;
+        }
+
+        return new User($id, $userIdentifier);
     }
 }
