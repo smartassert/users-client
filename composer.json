@@ -72,7 +72,7 @@
         "smartassert/array-inspector": ">=0.1,<1"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.5",
+        "phpunit/phpunit": "^9.6",
         "squizlabs/php_codesniffer": "^3.6",
         "phpstan/phpstan": "^1.8",
         "guzzlehttp/guzzle": "^7.5",

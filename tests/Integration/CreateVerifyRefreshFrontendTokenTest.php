@@ -10,7 +10,7 @@ use Lcobucci\JWT\Token\Plain;
 use SmartAssert\UsersClient\Model\RefreshableToken;
 use SmartAssert\UsersClient\Model\User;
 
-class CreateVerifyRefreshFrontendTokenTest extends AbstractIntegrationTest
+class CreateVerifyRefreshFrontendTokenTest extends AbstractIntegrationTestCase
 {
     public function testCreateVerifyRefreshFrontendToken(): void
     {

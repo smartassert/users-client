@@ -9,7 +9,7 @@ use Psr\Http\Message\ResponseInterface;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\CommonNonSuccessResponseDataProviderTrait;
 
-class RevokeFrontendRefreshTokenTest extends AbstractClientTest
+class RevokeFrontendRefreshTokenTest extends AbstractClientTestCase
 {
     use CommonNonSuccessResponseDataProviderTrait;
 
