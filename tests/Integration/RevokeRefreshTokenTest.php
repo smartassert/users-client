@@ -7,7 +7,7 @@ namespace SmartAssert\UsersClient\Tests\Integration;
 use SmartAssert\UsersClient\Model\RefreshableToken;
 use SmartAssert\UsersClient\Model\User;
 
-class RevokeRefreshTokenTest extends AbstractIntegrationTest
+class RevokeRefreshTokenTest extends AbstractIntegrationTestCase
 {
     public function testCreateVerifyRefreshFrontendToken(): void
     {

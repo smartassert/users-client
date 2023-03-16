@@ -9,7 +9,7 @@ use SmartAssert\UsersClient\Model\ApiKeyCollection;
 use SmartAssert\UsersClient\Model\Token;
 use SmartAssert\UsersClient\Model\User;
 
-class ListUserApiKeysTest extends AbstractIntegrationTest
+class ListUserApiKeysTest extends AbstractIntegrationTestCase
 {
     public function testListUserApiKeys(): void
     {

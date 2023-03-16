@@ -9,7 +9,7 @@ use SmartAssert\UsersClient\Model\Token;
 use SmartAssert\UsersClient\Model\User;
 use Symfony\Component\Uid\Ulid;
 
-class CreateUserTest extends AbstractIntegrationTest
+class CreateUserTest extends AbstractIntegrationTestCase
 {
     public function testCreateUserAlreadyExists(): void
     {

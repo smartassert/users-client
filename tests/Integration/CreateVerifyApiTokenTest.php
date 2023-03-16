@@ -8,7 +8,7 @@ use SmartAssert\UsersClient\Model\ApiKey;
 use SmartAssert\UsersClient\Model\Token;
 use SmartAssert\UsersClient\Model\User;
 
-class CreateVerifyApiTokenTest extends AbstractIntegrationTest
+class CreateVerifyApiTokenTest extends AbstractIntegrationTestCase
 {
     public function testCreateVerifyApiToken(): void
     {

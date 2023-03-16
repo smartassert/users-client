@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 use SmartAssert\ServiceClient\Client as ServiceClient;
 use SmartAssert\UsersClient\Client;
 
-abstract class AbstractIntegrationTest extends TestCase
+abstract class AbstractIntegrationTestCase extends TestCase
 {
     protected const ADMIN_TOKEN = 'primary_admin_token';
     protected const USER_EMAIL = 'user@example.com';

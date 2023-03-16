@@ -14,7 +14,7 @@ use SmartAssert\UsersClient\Model\User;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\CommonNonSuccessResponseDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\TokenVerificationDataProviderTrait;
 
-class VerifyApiTokenTest extends AbstractClientTest
+class VerifyApiTokenTest extends AbstractClientTestCase
 {
     use CommonNonSuccessResponseDataProviderTrait;
     use TokenVerificationDataProviderTrait;

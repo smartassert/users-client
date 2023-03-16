@@ -13,7 +13,7 @@ use SmartAssert\UsersClient\Tests\Functional\DataProvider\CommonNonSuccessRespon
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\InvalidJsonResponseExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
 
-class RefreshFrontendTokenTest extends AbstractClientTest
+class RefreshFrontendTokenTest extends AbstractClientTestCase
 {
     use CommonNonSuccessResponseDataProviderTrait;
     use InvalidJsonResponseExceptionDataProviderTrait;

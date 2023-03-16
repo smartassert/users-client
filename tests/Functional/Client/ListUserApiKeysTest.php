@@ -15,7 +15,7 @@ use SmartAssert\UsersClient\Tests\Functional\DataProvider\CommonNonSuccessRespon
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\InvalidJsonResponseExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
 
-class ListUserApiKeysTest extends AbstractClientTest
+class ListUserApiKeysTest extends AbstractClientTestCase
 {
     use CommonNonSuccessResponseDataProviderTrait;
     use InvalidJsonResponseExceptionDataProviderTrait;

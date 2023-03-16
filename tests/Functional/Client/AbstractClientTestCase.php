@@ -17,7 +17,7 @@ use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
 use SmartAssert\UsersClient\Client;
 use webignition\HttpHistoryContainer\Container as HttpHistoryContainer;
 
-abstract class AbstractClientTest extends TestCase
+abstract class AbstractClientTestCase extends TestCase
 {
     protected MockHandler $mockHandler;
     protected Client $client;
