@@ -12,6 +12,7 @@ use SmartAssert\ServiceClient\Client as ServiceClient;
 use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseContentException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
+use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\ServiceClient\Payload\JsonPayload;
 use SmartAssert\ServiceClient\Payload\UrlEncodedPayload;
@@ -38,6 +39,7 @@ class Client
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
      * @throws InvalidModelDataException
+     * @throws InvalidResponseTypeException
      */
     public function verifyApiToken(Token $token): ?User
     {
@@ -50,6 +52,7 @@ class Client
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
      * @throws InvalidModelDataException
+     * @throws InvalidResponseTypeException
      */
     public function verifyFrontendToken(Token $token): ?User
     {
@@ -63,10 +66,11 @@ class Client
      * @throws UserAlreadyExistsException
      * @throws NonSuccessResponseException
      * @throws InvalidModelDataException
+     * @throws InvalidResponseTypeException
      */
     public function createUser(string $adminToken, string $email, string $password): User
     {
-        $response = $this->serviceClient->sendRequestForJsonEncodedData(
+        $response = $this->serviceClient->sendRequest(
             (new Request('POST', $this->createUrl('/admin/user/create')))
                 ->withAuthentication(new Authentication($adminToken))
                 ->withPayload(new UrlEncodedPayload([
@@ -81,6 +85,10 @@ class Client
 
         if (!$response->isSuccessful()) {
             throw new NonSuccessResponseException($response->getHttpResponse());
+        }
+
+        if (!$response instanceof JsonResponse) {
+            throw InvalidResponseTypeException::create($response, JsonResponse::class);
         }
 
         $responseDataInspector = new ArrayInspector($response->getData());
@@ -100,10 +108,11 @@ class Client
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
      * @throws InvalidModelDataException
+     * @throws InvalidResponseTypeException
      */
     public function createFrontendToken(string $email, string $password): RefreshableToken
     {
-        $response = $this->serviceClient->sendRequestForJsonEncodedData(
+        $response = $this->serviceClient->sendRequest(
             (new Request('POST', $this->createUrl('/frontend/token/create')))
                 ->withPayload(new JsonPayload([
                     'username' => $email,
@@ -113,6 +122,10 @@ class Client
 
         if (!$response->isSuccessful()) {
             throw new NonSuccessResponseException($response->getHttpResponse());
+        }
+
+        if (!$response instanceof JsonResponse) {
+            throw InvalidResponseTypeException::create($response, JsonResponse::class);
         }
 
         $token = $this->createRefreshableTokenModel($response);
@@ -128,16 +141,21 @@ class Client
      * @throws InvalidResponseContentException
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
+     * @throws InvalidResponseTypeException
      */
     public function listUserApiKeys(Token $token): ApiKeyCollection
     {
-        $response = $this->serviceClient->sendRequestForJsonEncodedData(
+        $response = $this->serviceClient->sendRequest(
             (new Request('GET', $this->createUrl('/frontend/apikey/list')))
                 ->withAuthentication(new BearerAuthentication($token->token))
         );
 
         if (!$response->isSuccessful()) {
             throw new NonSuccessResponseException($response->getHttpResponse());
+        }
+
+        if (!$response instanceof JsonResponse) {
+            throw InvalidResponseTypeException::create($response, JsonResponse::class);
         }
 
         $responseDataInspector = new ArrayInspector($response->getData());
@@ -169,10 +187,11 @@ class Client
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
      * @throws InvalidModelDataException
+     * @throws InvalidResponseTypeException
      */
     public function refreshFrontendToken(RefreshableToken $token): ?RefreshableToken
     {
-        $response = $this->serviceClient->sendRequestForJsonEncodedData(
+        $response = $this->serviceClient->sendRequest(
             (new Request('POST', $this->createUrl('/frontend/token/refresh')))
                 ->withPayload(new JsonPayload(['refresh_token' => $token->refreshToken]))
         );
@@ -183,6 +202,10 @@ class Client
 
         if (!$response->isSuccessful()) {
             throw new NonSuccessResponseException($response->getHttpResponse());
+        }
+
+        if (!$response instanceof JsonResponse) {
+            throw InvalidResponseTypeException::create($response, JsonResponse::class);
         }
 
         $token = $this->createRefreshableTokenModel($response);
@@ -199,16 +222,21 @@ class Client
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
      * @throws InvalidModelDataException
+     * @throws InvalidResponseTypeException
      */
     public function createApiToken(string $apiKey): ?Token
     {
-        $response = $this->serviceClient->sendRequestForJsonEncodedData(
+        $response = $this->serviceClient->sendRequest(
             (new Request('POST', $this->createUrl('/api/token/create')))
                 ->withAuthentication(new Authentication($apiKey))
         );
 
         if (!$response->isSuccessful()) {
             throw new NonSuccessResponseException($response->getHttpResponse());
+        }
+
+        if (!$response instanceof JsonResponse) {
+            throw InvalidResponseTypeException::create($response, JsonResponse::class);
         }
 
         $responseDataInspector = new ArrayInspector($response->getData());
@@ -258,10 +286,11 @@ class Client
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
      * @throws InvalidModelDataException
+     * @throws InvalidResponseTypeException
      */
     private function makeTokenVerificationRequest(Token $token, string $url): ?User
     {
-        $response = $this->serviceClient->sendRequestForJsonEncodedData(
+        $response = $this->serviceClient->sendRequest(
             (new Request('GET', $url))
                 ->withAuthentication(new BearerAuthentication($token->token))
         );
@@ -272,6 +301,10 @@ class Client
 
         if (!$response->isSuccessful()) {
             throw new NonSuccessResponseException($response->getHttpResponse());
+        }
+
+        if (!$response instanceof JsonResponse) {
+            throw InvalidResponseTypeException::create($response, JsonResponse::class);
         }
 
         $user = $this->createUserModel(new ArrayInspector($response->getData()));
