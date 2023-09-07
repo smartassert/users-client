@@ -8,6 +8,7 @@ use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Psr7\HttpFactory;
 use PHPUnit\Framework\TestCase;
 use SmartAssert\ServiceClient\Client as ServiceClient;
+use SmartAssert\ServiceClient\ExceptionFactory\CurlExceptionFactory;
 use SmartAssert\ServiceClient\ResponseFactory\ResponseFactory;
 use SmartAssert\UsersClient\Client;
 
@@ -27,7 +28,13 @@ abstract class AbstractIntegrationTestCase extends TestCase
 
         $this->client = new Client(
             'http://localhost:9080',
-            new ServiceClient($httpFactory, $httpFactory, new HttpClient(), ResponseFactory::createFactory()),
+            new ServiceClient(
+                $httpFactory,
+                $httpFactory,
+                new HttpClient(),
+                ResponseFactory::createFactory(),
+                new CurlExceptionFactory()
+            ),
         );
     }
 }

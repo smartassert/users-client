@@ -14,6 +14,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use SmartAssert\ServiceClient\Client as ServiceClient;
 use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
+use SmartAssert\ServiceClient\ExceptionFactory\CurlExceptionFactory;
 use SmartAssert\ServiceClient\ResponseFactory\ResponseFactory;
 use SmartAssert\UsersClient\Client;
 use webignition\HttpHistoryContainer\Container as HttpHistoryContainer;
@@ -44,6 +45,7 @@ abstract class AbstractClientTestCase extends TestCase
                 $httpFactory,
                 new HttpClient(['handler' => $handlerStack]),
                 ResponseFactory::createFactory(),
+                new CurlExceptionFactory()
             ),
         );
     }
