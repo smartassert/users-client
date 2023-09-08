@@ -178,6 +178,38 @@ class Client
     /**
      * @throws ClientExceptionInterface
      * @throws InvalidResponseDataException
+     * @throws InvalidResponseTypeException
+     * @throws NonSuccessResponseException
+     */
+    public function getUserDefaultApiKey(Token $token): ?ApiKey
+    {
+        $response = $this->serviceClient->sendRequest(
+            (new Request('GET', $this->createUrl('/frontend/apikey')))
+                ->withAuthentication(new BearerAuthentication($token->token))
+        );
+
+        if (!$response->isSuccessful()) {
+            throw new NonSuccessResponseException($response->getHttpResponse());
+        }
+
+        if (!$response instanceof JsonResponse) {
+            throw InvalidResponseTypeException::create($response, JsonResponse::class);
+        }
+
+        $responseDataInspector = new ArrayInspector($response->getData());
+
+        $apiKeyKey = $responseDataInspector->getString('key');
+
+        if (is_string($apiKeyKey)) {
+            return new ApiKey($responseDataInspector->getString('label'), $apiKeyKey);
+        }
+
+        return null;
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
      * @throws InvalidModelDataException
      * @throws InvalidResponseTypeException
