@@ -82,4 +82,20 @@ class ApiKeyCollectionTest extends TestCase
             ],
         ];
     }
+
+    public function getIterate(): void
+    {
+        $apiKeys = [
+            new ApiKey('label 1', 'key 1'),
+            new ApiKey('label 2', 'key 2'),
+            new ApiKey('label 3', 'key 3'),
+        ];
+
+        $collection = new ApiKeyCollection($apiKeys);
+        self::assertIsIterable($collection);
+
+        foreach ($collection as $index => $item) {
+            self::assertSame($apiKeys[$index], $item);
+        }
+    }
 }

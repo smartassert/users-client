@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace SmartAssert\UsersClient\Model;
 
-class ApiKeyCollection
+/**
+ * @implements \IteratorAggregate<ApiKey>
+ */
+class ApiKeyCollection implements \IteratorAggregate
 {
     /**
      * @param ApiKey[] $apiKeys
@@ -23,5 +26,10 @@ class ApiKeyCollection
         }
 
         return null;
+    }
+
+    public function getIterator(): \Traversable
+    {
+        return new \ArrayIterator($this->apiKeys);
     }
 }
