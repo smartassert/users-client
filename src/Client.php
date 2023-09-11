@@ -247,7 +247,7 @@ class Client
      * @throws InvalidModelDataException
      * @throws InvalidResponseTypeException
      */
-    public function createApiToken(string $apiKey): ?Token
+    public function createApiToken(string $apiKey): Token
     {
         $response = $this->serviceClient->sendRequest(
             (new Request('POST', $this->createUrl('/api/token/create')))
