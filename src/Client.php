@@ -162,9 +162,9 @@ class Client
                 if (is_array($value)) {
                     $valueInspector = new ArrayInspector($value);
 
-                    $apiKeyKey = $valueInspector->getString('key');
+                    $apiKeyKey = $valueInspector->getNonEmptyString('key');
                     if (is_string($apiKeyKey)) {
-                        return new ApiKey($valueInspector->getString('label'), $apiKeyKey);
+                        return new ApiKey($valueInspector->getNonEmptyString('label'), $apiKeyKey);
                     }
                 }
 
@@ -198,10 +198,9 @@ class Client
 
         $responseDataInspector = new ArrayInspector($response->getData());
 
-        $apiKeyKey = $responseDataInspector->getString('key');
-
+        $apiKeyKey = $responseDataInspector->getNonEmptyString('key');
         if (is_string($apiKeyKey)) {
-            return new ApiKey($responseDataInspector->getString('label'), $apiKeyKey);
+            return new ApiKey(null, $apiKeyKey);
         }
 
         return null;
