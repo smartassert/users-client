@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SmartAssert\UsersClient\Tests\Integration;
 
+use SmartAssert\UsersClient\Exception\UnauthorizedException;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 use SmartAssert\UsersClient\Model\Token;
 use SmartAssert\UsersClient\Model\User;
@@ -11,6 +12,13 @@ use Symfony\Component\Uid\Ulid;
 
 class CreateUserTest extends AbstractIntegrationTestCase
 {
+    public function testCreateUserUnauthorized(): void
+    {
+        self::expectException(UnauthorizedException::class);
+
+        $this->client->createUser(md5((string) rand()), self::USER_EMAIL, self::USER_PASSWORD);
+    }
+
     public function testCreateUserAlreadyExists(): void
     {
         self::expectException(UserAlreadyExistsException::class);

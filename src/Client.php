@@ -17,6 +17,7 @@ use SmartAssert\ServiceClient\Payload\JsonPayload;
 use SmartAssert\ServiceClient\Payload\UrlEncodedPayload;
 use SmartAssert\ServiceClient\Request;
 use SmartAssert\ServiceClient\Response\JsonResponse;
+use SmartAssert\UsersClient\Exception\UnauthorizedException;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 use SmartAssert\UsersClient\Model\ApiKey;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
@@ -63,6 +64,7 @@ class Client
      * @throws NonSuccessResponseException
      * @throws InvalidModelDataException
      * @throws InvalidResponseTypeException
+     * @throws UnauthorizedException
      */
     public function createUser(string $adminToken, string $email, string $password): User
     {
@@ -77,6 +79,10 @@ class Client
 
         if (409 === $response->getStatusCode()) {
             throw new UserAlreadyExistsException($email, $response->getHttpResponse());
+        }
+
+        if (401 === $response->getStatusCode()) {
+            throw new UnauthorizedException();
         }
 
         if (!$response->isSuccessful()) {
@@ -104,6 +110,7 @@ class Client
      * @throws NonSuccessResponseException
      * @throws InvalidModelDataException
      * @throws InvalidResponseTypeException
+     * @throws UnauthorizedException
      */
     public function createFrontendToken(string $email, string $password): RefreshableToken
     {
@@ -114,6 +121,10 @@ class Client
                     'password' => $password,
                 ]))
         );
+
+        if (401 === $response->getStatusCode()) {
+            throw new UnauthorizedException();
+        }
 
         if (!$response->isSuccessful()) {
             throw new NonSuccessResponseException($response->getHttpResponse());
@@ -136,6 +147,7 @@ class Client
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
      * @throws InvalidResponseTypeException
+     * @throws UnauthorizedException
      */
     public function listUserApiKeys(Token $token): ApiKeyCollection
     {
@@ -143,6 +155,10 @@ class Client
             (new Request('GET', $this->createUrl('/frontend/apikey/list')))
                 ->withAuthentication(new BearerAuthentication($token->token))
         );
+
+        if (401 === $response->getStatusCode()) {
+            throw new UnauthorizedException();
+        }
 
         if (!$response->isSuccessful()) {
             throw new NonSuccessResponseException($response->getHttpResponse());
@@ -180,6 +196,7 @@ class Client
      * @throws InvalidResponseDataException
      * @throws InvalidResponseTypeException
      * @throws NonSuccessResponseException
+     * @throws UnauthorizedException
      */
     public function getUserDefaultApiKey(Token $token): ?ApiKey
     {
@@ -187,6 +204,10 @@ class Client
             (new Request('GET', $this->createUrl('/frontend/apikey')))
                 ->withAuthentication(new BearerAuthentication($token->token))
         );
+
+        if (401 === $response->getStatusCode()) {
+            throw new UnauthorizedException();
+        }
 
         if (!$response->isSuccessful()) {
             throw new NonSuccessResponseException($response->getHttpResponse());
@@ -246,6 +267,7 @@ class Client
      * @throws NonSuccessResponseException
      * @throws InvalidModelDataException
      * @throws InvalidResponseTypeException
+     * @throws UnauthorizedException
      */
     public function createApiToken(string $apiKey): Token
     {
@@ -253,6 +275,10 @@ class Client
             (new Request('POST', $this->createUrl('/api/token/create')))
                 ->withAuthentication(new Authentication($apiKey))
         );
+
+        if (401 === $response->getStatusCode()) {
+            throw new UnauthorizedException();
+        }
 
         if (!$response->isSuccessful()) {
             throw new NonSuccessResponseException($response->getHttpResponse());
@@ -275,6 +301,7 @@ class Client
     /**
      * @throws ClientExceptionInterface
      * @throws NonSuccessResponseException
+     * @throws UnauthorizedException
      */
     public function revokeFrontendRefreshToken(string $adminToken, string $userId): void
     {
@@ -283,6 +310,10 @@ class Client
                 ->withAuthentication(new Authentication($adminToken))
                 ->withPayload(new UrlEncodedPayload(['id' => $userId]))
         );
+
+        if (401 === $response->getStatusCode()) {
+            throw new UnauthorizedException();
+        }
 
         if (!$response->isSuccessful()) {
             throw new NonSuccessResponseException($response->getHttpResponse());
