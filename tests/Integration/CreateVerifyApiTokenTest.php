@@ -4,12 +4,20 @@ declare(strict_types=1);
 
 namespace SmartAssert\UsersClient\Tests\Integration;
 
+use SmartAssert\UsersClient\Exception\UnauthorizedException;
 use SmartAssert\UsersClient\Model\ApiKey;
 use SmartAssert\UsersClient\Model\Token;
 use SmartAssert\UsersClient\Model\User;
 
 class CreateVerifyApiTokenTest extends AbstractIntegrationTestCase
 {
+    public function testCreateUnauthorized(): void
+    {
+        self::expectException(UnauthorizedException::class);
+
+        $this->client->createApiToken(md5((string) rand()));
+    }
+
     public function testCreateVerifyApiToken(): void
     {
         $frontendToken = $this->client->createFrontendToken(self::USER_EMAIL, self::USER_PASSWORD);

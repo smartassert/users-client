@@ -7,11 +7,19 @@ namespace SmartAssert\UsersClient\Tests\Integration;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\Token\Plain;
+use SmartAssert\UsersClient\Exception\UnauthorizedException;
 use SmartAssert\UsersClient\Model\RefreshableToken;
 use SmartAssert\UsersClient\Model\User;
 
 class CreateVerifyRefreshFrontendTokenTest extends AbstractIntegrationTestCase
 {
+    public function testCreateUnauthorized(): void
+    {
+        self::expectException(UnauthorizedException::class);
+
+        $this->client->createFrontendToken(md5((string) rand()), md5((string) rand()));
+    }
+
     public function testCreateVerifyRefreshFrontendToken(): void
     {
         $parser = new Parser(new JoseEncoder());
