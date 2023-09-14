@@ -36,7 +36,7 @@ class CreateVerifyRefreshFrontendTokenTest extends AbstractIntegrationTestCase
         self::assertSame(self::USER_EMAIL, $parsedToken->claims()->get('email'));
         self::assertSame($userFromToken->id, $parsedToken->claims()->get('sub'));
 
-        $refreshedToken = $this->client->refreshFrontendToken($token);
+        $refreshedToken = $this->client->refreshFrontendToken($token->refreshToken);
         self::assertInstanceOf(RefreshableToken::class, $refreshedToken);
 
         $parsedRefreshedToken = $parser->parse($refreshedToken->token);
