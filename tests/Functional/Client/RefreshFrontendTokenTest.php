@@ -33,7 +33,7 @@ class RefreshFrontendTokenTest extends AbstractClientTestCase
 
         $this->expectException($expectedExceptionClass);
 
-        $this->client->refreshFrontendToken(new RefreshableToken(md5((string) rand()), md5((string) rand())));
+        $this->client->refreshFrontendToken(md5((string) rand()));
     }
 
     /**
@@ -44,7 +44,7 @@ class RefreshFrontendTokenTest extends AbstractClientTestCase
         $this->mockHandler->append($httpFixture);
 
         try {
-            $this->client->refreshFrontendToken(new RefreshableToken(md5((string) rand()), md5((string) rand())));
+            $this->client->refreshFrontendToken(md5((string) rand()));
             self::fail(NonSuccessResponseException::class . ' not thrown');
         } catch (NonSuccessResponseException $e) {
             self::assertSame($httpFixture, $e->response);
@@ -55,7 +55,7 @@ class RefreshFrontendTokenTest extends AbstractClientTestCase
     {
         $this->doInvalidResponseDataTest(
             function () {
-                $this->client->refreshFrontendToken(new RefreshableToken(md5((string) rand()), md5((string) rand())));
+                $this->client->refreshFrontendToken(md5((string) rand()));
             },
             RefreshableToken::class
         );
@@ -66,7 +66,7 @@ class RefreshFrontendTokenTest extends AbstractClientTestCase
      */
     public function testRefreshFrontendTokenSuccess(ResponseInterface $httpFixture, RefreshableToken $expected): void
     {
-        $refreshToken = new RefreshableToken(md5((string) rand()), md5((string) rand()));
+        $refreshToken = md5((string) rand());
 
         $this->mockHandler->append($httpFixture);
 
@@ -77,7 +77,7 @@ class RefreshFrontendTokenTest extends AbstractClientTestCase
         self::assertSame('POST', $request->getMethod());
         self::assertSame('application/json', $request->getHeaderLine('content-type'));
         self::assertSame(
-            json_encode(['refresh_token' => $refreshToken->refreshToken]),
+            json_encode(['refresh_token' => $refreshToken]),
             $request->getBody()->getContents()
         );
     }

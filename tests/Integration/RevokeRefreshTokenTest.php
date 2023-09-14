@@ -25,11 +25,11 @@ class RevokeRefreshTokenTest extends AbstractIntegrationTestCase
         $userFromToken = $this->client->verifyFrontendToken($token);
         \assert($userFromToken instanceof User);
 
-        $refreshedToken = $this->client->refreshFrontendToken($token);
+        $refreshedToken = $this->client->refreshFrontendToken($token->refreshToken);
         \assert($refreshedToken instanceof RefreshableToken);
 
         $this->client->revokeFrontendRefreshToken(self::ADMIN_TOKEN, $userFromToken->id);
 
-        self::assertNull($this->client->refreshFrontendToken($refreshedToken));
+        self::assertNull($this->client->refreshFrontendToken($refreshedToken->token));
     }
 }

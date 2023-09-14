@@ -228,17 +228,19 @@ class Client
     }
 
     /**
+     * @param non-empty-string $refreshToken
+     *
      * @throws ClientExceptionInterface
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
      * @throws InvalidModelDataException
      * @throws InvalidResponseTypeException
      */
-    public function refreshFrontendToken(RefreshableToken $token): ?RefreshableToken
+    public function refreshFrontendToken(string $refreshToken): ?RefreshableToken
     {
         $response = $this->serviceClient->sendRequest(
             (new Request('POST', $this->createUrl('/frontend/token/refresh')))
-                ->withPayload(new JsonPayload(['refresh_token' => $token->refreshToken]))
+                ->withPayload(new JsonPayload(['refresh_token' => $refreshToken]))
         );
 
         if (401 === $response->getStatusCode()) {
@@ -253,8 +255,8 @@ class Client
             throw InvalidResponseTypeException::create($response, JsonResponse::class);
         }
 
-        $token = $this->createRefreshableTokenModel($response);
-        if (null === $token) {
+        $refreshToken = $this->createRefreshableTokenModel($response);
+        if (null === $refreshToken) {
             throw InvalidModelDataException::fromJsonResponse(RefreshableToken::class, $response);
         }
 
