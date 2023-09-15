@@ -69,7 +69,7 @@ class Client
     public function createUser(string $adminToken, string $email, string $password): User
     {
         $response = $this->serviceClient->sendRequest(
-            (new Request('POST', $this->createUrl('/admin/user/create')))
+            (new Request('POST', $this->createUrl('/user/create')))
                 ->withAuthentication(new Authentication($adminToken))
                 ->withPayload(new UrlEncodedPayload([
                     'email' => $email,
@@ -308,7 +308,7 @@ class Client
     public function revokeFrontendRefreshToken(string $adminToken, string $userId): void
     {
         $response = $this->serviceClient->sendRequest(
-            (new Request('POST', $this->createUrl('/admin/frontend/refresh-token/revoke')))
+            (new Request('POST', $this->createUrl('/frontend/refresh-token/revoke')))
                 ->withAuthentication(new Authentication($adminToken))
                 ->withPayload(new UrlEncodedPayload(['id' => $userId]))
         );
