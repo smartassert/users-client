@@ -34,25 +34,29 @@ class Client
     }
 
     /**
+     * @param non-empty-string $token
+     *
      * @throws ClientExceptionInterface
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
      * @throws InvalidModelDataException
      * @throws InvalidResponseTypeException
      */
-    public function verifyApiToken(Token $token): ?User
+    public function verifyApiToken(string $token): ?User
     {
         return $this->makeTokenVerificationRequest($token, $this->createUrl('/api-token/verify'));
     }
 
     /**
+     * @param non-empty-string $token
+     *
      * @throws ClientExceptionInterface
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
      * @throws InvalidModelDataException
      * @throws InvalidResponseTypeException
      */
-    public function verifyFrontendToken(Token $token): ?User
+    public function verifyFrontendToken(string $token): ?User
     {
         return $this->makeTokenVerificationRequest($token, $this->createUrl('/frontend-token/verify'));
     }
@@ -143,17 +147,19 @@ class Client
     }
 
     /**
+     * @param non-empty-string $token
+     *
      * @throws ClientExceptionInterface
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
      * @throws InvalidResponseTypeException
      * @throws UnauthorizedException
      */
-    public function listUserApiKeys(Token $token): ApiKeyCollection
+    public function listUserApiKeys(string $token): ApiKeyCollection
     {
         $response = $this->serviceClient->sendRequest(
             (new Request('GET', $this->createUrl('/apikey/list')))
-                ->withAuthentication(new BearerAuthentication($token->token))
+                ->withAuthentication(new BearerAuthentication($token))
         );
 
         if (401 === $response->getStatusCode()) {
@@ -192,17 +198,19 @@ class Client
     }
 
     /**
+     * @param non-empty-string $token
+     *
      * @throws ClientExceptionInterface
      * @throws InvalidResponseDataException
      * @throws InvalidResponseTypeException
      * @throws NonSuccessResponseException
      * @throws UnauthorizedException
      */
-    public function getUserDefaultApiKey(Token $token): ?ApiKey
+    public function getUserDefaultApiKey(string $token): ?ApiKey
     {
         $response = $this->serviceClient->sendRequest(
             (new Request('GET', $this->createUrl('/apikey')))
-                ->withAuthentication(new BearerAuthentication($token->token))
+                ->withAuthentication(new BearerAuthentication($token))
         );
 
         if (401 === $response->getStatusCode()) {
@@ -336,17 +344,19 @@ class Client
     }
 
     /**
+     * @param non-empty-string $token
+     *
      * @throws ClientExceptionInterface
      * @throws InvalidResponseDataException
      * @throws NonSuccessResponseException
      * @throws InvalidModelDataException
      * @throws InvalidResponseTypeException
      */
-    private function makeTokenVerificationRequest(Token $token, string $url): ?User
+    private function makeTokenVerificationRequest(string $token, string $url): ?User
     {
         $response = $this->serviceClient->sendRequest(
             (new Request('GET', $url))
-                ->withAuthentication(new BearerAuthentication($token->token))
+                ->withAuthentication(new BearerAuthentication($token))
         );
 
         if (401 === $response->getStatusCode()) {

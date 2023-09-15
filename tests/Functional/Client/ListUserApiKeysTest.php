@@ -10,7 +10,6 @@ use Psr\Http\Message\ResponseInterface;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\UsersClient\Model\ApiKey;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
-use SmartAssert\UsersClient\Model\Token;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\CommonNonSuccessResponseDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\InvalidJsonResponseExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
@@ -35,7 +34,7 @@ class ListUserApiKeysTest extends AbstractClientTestCase
 
         $this->expectException($expectedExceptionClass);
 
-        $this->client->listUserApiKeys(new Token('token'));
+        $this->client->listUserApiKeys('token');
     }
 
     /**
@@ -46,7 +45,7 @@ class ListUserApiKeysTest extends AbstractClientTestCase
         $this->mockHandler->append($httpFixture);
 
         try {
-            $this->client->listUserApiKeys(new Token('token'));
+            $this->client->listUserApiKeys('token');
             self::fail(NonSuccessResponseException::class . ' not thrown');
         } catch (NonSuccessResponseException $e) {
             self::assertSame($httpFixture, $e->response);
@@ -58,7 +57,7 @@ class ListUserApiKeysTest extends AbstractClientTestCase
      */
     public function testListUserApiKeysSuccess(ResponseInterface $httpFixture, ApiKeyCollection $expected): void
     {
-        $token = new Token(md5((string) rand()));
+        $token = md5((string) rand());
 
         $this->mockHandler->append($httpFixture);
 
@@ -67,7 +66,7 @@ class ListUserApiKeysTest extends AbstractClientTestCase
 
         $request = $this->getLastRequest();
         self::assertSame('GET', $request->getMethod());
-        self::assertSame('Bearer ' . $token->token, $request->getHeaderLine('authorization'));
+        self::assertSame('Bearer ' . $token, $request->getHeaderLine('authorization'));
     }
 
     /**
