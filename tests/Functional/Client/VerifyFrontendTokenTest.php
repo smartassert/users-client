@@ -9,7 +9,6 @@ use GuzzleHttp\Psr7\Request;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
-use SmartAssert\UsersClient\Model\Token;
 use SmartAssert\UsersClient\Model\User;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\CommonNonSuccessResponseDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\TokenVerificationDataProviderTrait;
@@ -25,7 +24,7 @@ class VerifyFrontendTokenTest extends AbstractClientTestCase
 
         $this->expectException(ClientExceptionInterface::class);
 
-        $this->client->verifyFrontendToken(new Token('token'));
+        $this->client->verifyFrontendToken('token');
     }
 
     /**
@@ -36,7 +35,7 @@ class VerifyFrontendTokenTest extends AbstractClientTestCase
         $this->mockHandler->append($httpFixture);
 
         try {
-            $this->client->verifyFrontendToken(new Token('token'));
+            $this->client->verifyFrontendToken('token');
             self::fail(NonSuccessResponseException::class . ' not thrown');
         } catch (NonSuccessResponseException $e) {
             self::assertSame($httpFixture, $e->response);
@@ -47,7 +46,7 @@ class VerifyFrontendTokenTest extends AbstractClientTestCase
     {
         $this->doInvalidResponseDataTest(
             function () {
-                $this->client->verifyFrontendToken(new Token('token'));
+                $this->client->verifyFrontendToken('token');
             },
             User::class
         );
@@ -58,7 +57,7 @@ class VerifyFrontendTokenTest extends AbstractClientTestCase
      */
     public function testVerifyFrontendToken(ResponseInterface $httpFixture, ?User $expected): void
     {
-        $token = new Token(md5((string) rand()));
+        $token = md5((string) rand());
 
         $this->mockHandler->append($httpFixture);
 
@@ -67,6 +66,6 @@ class VerifyFrontendTokenTest extends AbstractClientTestCase
 
         $request = $this->getLastRequest();
         self::assertSame('GET', $request->getMethod());
-        self::assertSame('Bearer ' . $token->token, $request->getHeaderLine('authorization'));
+        self::assertSame('Bearer ' . $token, $request->getHeaderLine('authorization'));
     }
 }

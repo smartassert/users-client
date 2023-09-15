@@ -27,7 +27,7 @@ class CreateVerifyRefreshFrontendTokenTest extends AbstractIntegrationTestCase
         $token = $this->client->createFrontendToken(self::USER_EMAIL, self::USER_PASSWORD);
         self::assertInstanceOf(RefreshableToken::class, $token);
 
-        $userFromToken = $this->client->verifyFrontendToken($token);
+        $userFromToken = $this->client->verifyFrontendToken($token->token);
         self::assertInstanceOf(User::class, $userFromToken);
         self::assertSame(self::USER_EMAIL, $userFromToken->userIdentifier);
 

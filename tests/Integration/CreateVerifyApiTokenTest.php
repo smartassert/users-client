@@ -23,17 +23,17 @@ class CreateVerifyApiTokenTest extends AbstractIntegrationTestCase
         $frontendToken = $this->client->createFrontendToken(self::USER_EMAIL, self::USER_PASSWORD);
         \assert($frontendToken instanceof Token);
 
-        $frontendTokenUser = $this->client->verifyFrontendToken($frontendToken);
+        $frontendTokenUser = $this->client->verifyFrontendToken($frontendToken->token);
         \assert($frontendTokenUser instanceof User);
 
-        $apiKeys = $this->client->listUserApiKeys($frontendToken);
+        $apiKeys = $this->client->listUserApiKeys($frontendToken->token);
         $defaultApiKey = $apiKeys->getDefault();
         \assert($defaultApiKey instanceof ApiKey);
 
         $apiToken = $this->client->createApiToken($defaultApiKey->key);
         \assert($apiToken instanceof Token);
 
-        $apiTokenUser = $this->client->verifyApiToken($apiToken);
+        $apiTokenUser = $this->client->verifyApiToken($apiToken->token);
         \assert($apiTokenUser instanceof User);
 
         self::assertSame($frontendTokenUser->userIdentifier, $apiTokenUser->userIdentifier);

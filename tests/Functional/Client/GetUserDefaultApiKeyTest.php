@@ -9,7 +9,6 @@ use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\UsersClient\Model\ApiKey;
-use SmartAssert\UsersClient\Model\Token;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\CommonNonSuccessResponseDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\InvalidJsonResponseExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
@@ -34,7 +33,7 @@ class GetUserDefaultApiKeyTest extends AbstractClientTestCase
 
         $this->expectException($expectedExceptionClass);
 
-        $this->client->getUserDefaultApiKey(new Token('token'));
+        $this->client->getUserDefaultApiKey('token');
     }
 
     /**
@@ -45,7 +44,7 @@ class GetUserDefaultApiKeyTest extends AbstractClientTestCase
         $this->mockHandler->append($httpFixture);
 
         try {
-            $this->client->getUserDefaultApiKey(new Token('token'));
+            $this->client->getUserDefaultApiKey('token');
             self::fail(NonSuccessResponseException::class . ' not thrown');
         } catch (NonSuccessResponseException $e) {
             self::assertSame($httpFixture, $e->response);
@@ -63,7 +62,7 @@ class GetUserDefaultApiKeyTest extends AbstractClientTestCase
             ])
         );
 
-        $token = new Token(md5((string) rand()));
+        $token = md5((string) rand());
 
         $this->mockHandler->append($httpFixture);
 
@@ -72,6 +71,6 @@ class GetUserDefaultApiKeyTest extends AbstractClientTestCase
 
         $request = $this->getLastRequest();
         self::assertSame('GET', $request->getMethod());
-        self::assertSame('Bearer ' . $token->token, $request->getHeaderLine('authorization'));
+        self::assertSame('Bearer ' . $token, $request->getHeaderLine('authorization'));
     }
 }
