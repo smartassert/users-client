@@ -42,7 +42,7 @@ class Client
      */
     public function verifyApiToken(Token $token): ?User
     {
-        return $this->makeTokenVerificationRequest($token, $this->createUrl('/api/token/verify'));
+        return $this->makeTokenVerificationRequest($token, $this->createUrl('/api-token/verify'));
     }
 
     /**
@@ -54,7 +54,7 @@ class Client
      */
     public function verifyFrontendToken(Token $token): ?User
     {
-        return $this->makeTokenVerificationRequest($token, $this->createUrl('/frontend/token/verify'));
+        return $this->makeTokenVerificationRequest($token, $this->createUrl('/frontend-token/verify'));
     }
 
     /**
@@ -115,7 +115,7 @@ class Client
     public function createFrontendToken(string $email, string $password): RefreshableToken
     {
         $response = $this->serviceClient->sendRequest(
-            (new Request('POST', $this->createUrl('/frontend/token/create')))
+            (new Request('POST', $this->createUrl('/frontend-token/create')))
                 ->withPayload(new JsonPayload([
                     'username' => $email,
                     'password' => $password,
@@ -152,7 +152,7 @@ class Client
     public function listUserApiKeys(Token $token): ApiKeyCollection
     {
         $response = $this->serviceClient->sendRequest(
-            (new Request('GET', $this->createUrl('/frontend/apikey/list')))
+            (new Request('GET', $this->createUrl('/apikey/list')))
                 ->withAuthentication(new BearerAuthentication($token->token))
         );
 
@@ -201,7 +201,7 @@ class Client
     public function getUserDefaultApiKey(Token $token): ?ApiKey
     {
         $response = $this->serviceClient->sendRequest(
-            (new Request('GET', $this->createUrl('/frontend/apikey')))
+            (new Request('GET', $this->createUrl('/apikey')))
                 ->withAuthentication(new BearerAuthentication($token->token))
         );
 
@@ -239,7 +239,7 @@ class Client
     public function refreshFrontendToken(string $refreshToken): ?RefreshableToken
     {
         $response = $this->serviceClient->sendRequest(
-            (new Request('POST', $this->createUrl('/frontend/token/refresh')))
+            (new Request('POST', $this->createUrl('/frontend-token/refresh')))
                 ->withPayload(new JsonPayload(['refresh_token' => $refreshToken]))
         );
 
@@ -274,7 +274,7 @@ class Client
     public function createApiToken(string $apiKey): Token
     {
         $response = $this->serviceClient->sendRequest(
-            (new Request('POST', $this->createUrl('/api/token/create')))
+            (new Request('POST', $this->createUrl('/api-token/create')))
                 ->withAuthentication(new Authentication($apiKey))
         );
 
@@ -308,7 +308,7 @@ class Client
     public function revokeFrontendRefreshToken(string $adminToken, string $userId): void
     {
         $response = $this->serviceClient->sendRequest(
-            (new Request('POST', $this->createUrl('/frontend/refresh-token/revoke')))
+            (new Request('POST', $this->createUrl('/refresh-token/revoke')))
                 ->withAuthentication(new Authentication($adminToken))
                 ->withPayload(new UrlEncodedPayload(['id' => $userId]))
         );
