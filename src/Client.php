@@ -331,6 +331,28 @@ class Client
     }
 
     /**
+     * @throws ClientExceptionInterface
+     * @throws NonSuccessResponseException
+     * @throws UnauthorizedException
+     */
+    public function revokeFrontendRefreshToken(string $token, string $refreshToken): void
+    {
+        $response = $this->serviceClient->sendRequest(
+            (new Request('POST', $this->createUrl('/refresh-token/revoke')))
+                ->withAuthentication(new BearerAuthentication($token))
+                ->withPayload(new UrlEncodedPayload(['refresh_token' => $refreshToken]))
+        );
+
+        if (401 === $response->getStatusCode()) {
+            throw new UnauthorizedException();
+        }
+
+        if (!$response->isSuccessful()) {
+            throw new NonSuccessResponseException($response->getHttpResponse());
+        }
+    }
+
+    /**
      * @throws InvalidResponseDataException
      */
     private function createRefreshableTokenModel(JsonResponse $response): ?RefreshableToken
