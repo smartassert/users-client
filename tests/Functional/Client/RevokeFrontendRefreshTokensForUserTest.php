@@ -9,33 +9,33 @@ use Psr\Http\Message\ResponseInterface;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\CommonNonSuccessResponseDataProviderTrait;
 
-class RevokeFrontendRefreshTokenTest extends AbstractClientTestCase
+class RevokeFrontendRefreshTokensForUserTest extends AbstractClientTestCase
 {
     use CommonNonSuccessResponseDataProviderTrait;
 
     /**
      * @dataProvider commonNonSuccessResponseDataProvider
      */
-    public function testCreateFrontendTokenThrowsNonSuccessResponseException(ResponseInterface $httpFixture): void
+    public function testRevokeThrowsNonSuccessResponseException(ResponseInterface $httpFixture): void
     {
         $this->mockHandler->append($httpFixture);
 
         try {
-            $this->client->revokeFrontendRefreshToken('admin token', 'user id');
+            $this->client->revokeFrontendRefreshTokensForUser('admin token', 'user id');
             self::fail(NonSuccessResponseException::class . ' not thrown');
         } catch (NonSuccessResponseException $e) {
             self::assertSame($httpFixture, $e->response);
         }
     }
 
-    public function testVerifyFrontendToken(): void
+    public function testRevokeRequestProperties(): void
     {
         $adminToken = 'admin token value';
         $userId = md5((string) rand());
 
         $this->mockHandler->append(new Response());
 
-        $this->client->revokeFrontendRefreshToken($adminToken, $userId);
+        $this->client->revokeFrontendRefreshTokensForUser($adminToken, $userId);
 
         $request = $this->getLastRequest();
         self::assertSame('POST', $request->getMethod());

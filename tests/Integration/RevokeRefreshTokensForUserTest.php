@@ -8,16 +8,16 @@ use SmartAssert\UsersClient\Exception\UnauthorizedException;
 use SmartAssert\UsersClient\Model\RefreshableToken;
 use SmartAssert\UsersClient\Model\User;
 
-class RevokeRefreshTokenTest extends AbstractIntegrationTestCase
+class RevokeRefreshTokensForUserTest extends AbstractIntegrationTestCase
 {
     public function testRevokeUnauthorized(): void
     {
         self::expectException(UnauthorizedException::class);
 
-        $this->client->revokeFrontendRefreshToken(md5((string) rand()), md5((string) rand()));
+        $this->client->revokeFrontendRefreshTokensForUser(md5((string) rand()), md5((string) rand()));
     }
 
-    public function testCreateVerifyRefreshFrontendToken(): void
+    public function testRevokeSuccess(): void
     {
         $token = $this->client->createFrontendToken(self::USER_EMAIL, self::USER_PASSWORD);
         \assert($token instanceof RefreshableToken);
@@ -28,7 +28,7 @@ class RevokeRefreshTokenTest extends AbstractIntegrationTestCase
         $refreshedToken = $this->client->refreshFrontendToken($token->refreshToken);
         \assert($refreshedToken instanceof RefreshableToken);
 
-        $this->client->revokeFrontendRefreshToken(self::ADMIN_TOKEN, $userFromToken->id);
+        $this->client->revokeFrontendRefreshTokensForUser(self::ADMIN_TOKEN, $userFromToken->id);
 
         self::assertNull($this->client->refreshFrontendToken($refreshedToken->token));
     }

@@ -313,10 +313,10 @@ class Client
      * @throws NonSuccessResponseException
      * @throws UnauthorizedException
      */
-    public function revokeFrontendRefreshToken(string $adminToken, string $userId): void
+    public function revokeFrontendRefreshTokensForUser(string $adminToken, string $userId): void
     {
         $response = $this->serviceClient->sendRequest(
-            (new Request('POST', $this->createUrl('/refresh-token/revoke')))
+            (new Request('POST', $this->createUrl('/refresh-token/revoke-all-for-user')))
                 ->withAuthentication(new Authentication($adminToken))
                 ->withPayload(new UrlEncodedPayload(['id' => $userId]))
         );
