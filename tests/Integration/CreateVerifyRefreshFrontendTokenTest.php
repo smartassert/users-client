@@ -7,7 +7,7 @@ namespace SmartAssert\UsersClient\Tests\Integration;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\Token\Plain;
-use SmartAssert\UsersClient\Exception\UnauthorizedException;
+use SmartAssert\ServiceClient\Exception\UnauthorizedException;
 use SmartAssert\UsersClient\Model\RefreshableToken;
 use SmartAssert\UsersClient\Model\User;
 

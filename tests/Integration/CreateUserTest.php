@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SmartAssert\UsersClient\Tests\Integration;
 
-use SmartAssert\UsersClient\Exception\UnauthorizedException;
+use SmartAssert\ServiceClient\Exception\UnauthorizedException;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 use SmartAssert\UsersClient\Model\Token;
 use SmartAssert\UsersClient\Model\User;
