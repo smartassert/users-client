@@ -13,11 +13,11 @@ use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
+use SmartAssert\ServiceClient\Exception\UnauthorizedException;
 use SmartAssert\ServiceClient\Payload\JsonPayload;
 use SmartAssert\ServiceClient\Payload\UrlEncodedPayload;
 use SmartAssert\ServiceClient\Request;
 use SmartAssert\ServiceClient\Response\JsonResponse;
-use SmartAssert\UsersClient\Exception\UnauthorizedException;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 use SmartAssert\UsersClient\Model\ApiKey;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
@@ -25,11 +25,11 @@ use SmartAssert\UsersClient\Model\RefreshableToken;
 use SmartAssert\UsersClient\Model\Token;
 use SmartAssert\UsersClient\Model\User;
 
-class Client
+readonly class Client
 {
     public function __construct(
-        private readonly string $baseUrl,
-        private readonly ServiceClient $serviceClient,
+        private string $baseUrl,
+        private ServiceClient $serviceClient,
     ) {
     }
 
@@ -85,10 +85,6 @@ class Client
             throw new UserAlreadyExistsException($email, $response->getHttpResponse());
         }
 
-        if (401 === $response->getStatusCode()) {
-            throw new UnauthorizedException();
-        }
-
         if (!$response->isSuccessful()) {
             throw new NonSuccessResponseException($response->getHttpResponse());
         }
@@ -126,10 +122,6 @@ class Client
                 ]))
         );
 
-        if (401 === $response->getStatusCode()) {
-            throw new UnauthorizedException();
-        }
-
         if (!$response->isSuccessful()) {
             throw new NonSuccessResponseException($response->getHttpResponse());
         }
@@ -161,10 +153,6 @@ class Client
             (new Request('GET', $this->createUrl('/apikey/list')))
                 ->withAuthentication(new BearerAuthentication($token))
         );
-
-        if (401 === $response->getStatusCode()) {
-            throw new UnauthorizedException();
-        }
 
         if (!$response->isSuccessful()) {
             throw new NonSuccessResponseException($response->getHttpResponse());
@@ -213,10 +201,6 @@ class Client
                 ->withAuthentication(new BearerAuthentication($token))
         );
 
-        if (401 === $response->getStatusCode()) {
-            throw new UnauthorizedException();
-        }
-
         if (!$response->isSuccessful()) {
             throw new NonSuccessResponseException($response->getHttpResponse());
         }
@@ -246,12 +230,12 @@ class Client
      */
     public function refreshFrontendToken(string $refreshToken): ?RefreshableToken
     {
-        $response = $this->serviceClient->sendRequest(
-            (new Request('POST', $this->createUrl('/frontend-token/refresh')))
-                ->withPayload(new JsonPayload(['refresh_token' => $refreshToken]))
-        );
-
-        if (401 === $response->getStatusCode()) {
+        try {
+            $response = $this->serviceClient->sendRequest(
+                (new Request('POST', $this->createUrl('/frontend-token/refresh')))
+                    ->withPayload(new JsonPayload(['refresh_token' => $refreshToken]))
+            );
+        } catch (UnauthorizedException) {
             return null;
         }
 
@@ -286,10 +270,6 @@ class Client
                 ->withAuthentication(new Authentication($apiKey))
         );
 
-        if (401 === $response->getStatusCode()) {
-            throw new UnauthorizedException();
-        }
-
         if (!$response->isSuccessful()) {
             throw new NonSuccessResponseException($response->getHttpResponse());
         }
@@ -321,10 +301,6 @@ class Client
                 ->withPayload(new UrlEncodedPayload(['id' => $userId]))
         );
 
-        if (401 === $response->getStatusCode()) {
-            throw new UnauthorizedException();
-        }
-
         if (!$response->isSuccessful()) {
             throw new NonSuccessResponseException($response->getHttpResponse());
         }
@@ -342,10 +318,6 @@ class Client
                 ->withAuthentication(new BearerAuthentication($token))
                 ->withPayload(new UrlEncodedPayload(['refresh_token' => $refreshToken]))
         );
-
-        if (401 === $response->getStatusCode()) {
-            throw new UnauthorizedException();
-        }
 
         if (!$response->isSuccessful()) {
             throw new NonSuccessResponseException($response->getHttpResponse());
@@ -376,12 +348,12 @@ class Client
      */
     private function makeTokenVerificationRequest(string $token, string $url): ?User
     {
-        $response = $this->serviceClient->sendRequest(
-            (new Request('GET', $url))
-                ->withAuthentication(new BearerAuthentication($token))
-        );
-
-        if (401 === $response->getStatusCode()) {
+        try {
+            $response = $this->serviceClient->sendRequest(
+                (new Request('GET', $url))
+                    ->withAuthentication(new BearerAuthentication($token))
+            );
+        } catch (UnauthorizedException) {
             return null;
         }
 
