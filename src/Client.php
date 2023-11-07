@@ -25,7 +25,7 @@ use SmartAssert\UsersClient\Model\RefreshableToken;
 use SmartAssert\UsersClient\Model\Token;
 use SmartAssert\UsersClient\Model\User;
 
-readonly class Client
+readonly class Client implements ClientInterface
 {
     public function __construct(
         private string $baseUrl,
@@ -33,43 +33,16 @@ readonly class Client
     ) {
     }
 
-    /**
-     * @param non-empty-string $token
-     *
-     * @throws ClientExceptionInterface
-     * @throws InvalidResponseDataException
-     * @throws NonSuccessResponseException
-     * @throws InvalidModelDataException
-     * @throws InvalidResponseTypeException
-     */
     public function verifyApiToken(string $token): ?User
     {
         return $this->makeTokenVerificationRequest($token, $this->createUrl('/api-token/verify'));
     }
 
-    /**
-     * @param non-empty-string $token
-     *
-     * @throws ClientExceptionInterface
-     * @throws InvalidResponseDataException
-     * @throws NonSuccessResponseException
-     * @throws InvalidModelDataException
-     * @throws InvalidResponseTypeException
-     */
     public function verifyFrontendToken(string $token): ?User
     {
         return $this->makeTokenVerificationRequest($token, $this->createUrl('/frontend-token/verify'));
     }
 
-    /**
-     * @throws ClientExceptionInterface
-     * @throws InvalidResponseDataException
-     * @throws UserAlreadyExistsException
-     * @throws NonSuccessResponseException
-     * @throws InvalidModelDataException
-     * @throws InvalidResponseTypeException
-     * @throws UnauthorizedException
-     */
     public function createUser(string $adminToken, string $email, string $password): User
     {
         $response = $this->serviceClient->sendRequest(
@@ -104,14 +77,6 @@ readonly class Client
         return $user;
     }
 
-    /**
-     * @throws ClientExceptionInterface
-     * @throws InvalidResponseDataException
-     * @throws NonSuccessResponseException
-     * @throws InvalidModelDataException
-     * @throws InvalidResponseTypeException
-     * @throws UnauthorizedException
-     */
     public function createFrontendToken(string $email, string $password): RefreshableToken
     {
         $response = $this->serviceClient->sendRequest(
@@ -138,15 +103,6 @@ readonly class Client
         return $token;
     }
 
-    /**
-     * @param non-empty-string $token
-     *
-     * @throws ClientExceptionInterface
-     * @throws InvalidResponseDataException
-     * @throws NonSuccessResponseException
-     * @throws InvalidResponseTypeException
-     * @throws UnauthorizedException
-     */
     public function listUserApiKeys(string $token): ApiKeyCollection
     {
         $response = $this->serviceClient->sendRequest(
@@ -185,15 +141,6 @@ readonly class Client
         return new ApiKeyCollection($apiKeys);
     }
 
-    /**
-     * @param non-empty-string $token
-     *
-     * @throws ClientExceptionInterface
-     * @throws InvalidResponseDataException
-     * @throws InvalidResponseTypeException
-     * @throws NonSuccessResponseException
-     * @throws UnauthorizedException
-     */
     public function getUserDefaultApiKey(string $token): ?ApiKey
     {
         $response = $this->serviceClient->sendRequest(
@@ -219,15 +166,6 @@ readonly class Client
         return null;
     }
 
-    /**
-     * @param non-empty-string $refreshToken
-     *
-     * @throws ClientExceptionInterface
-     * @throws InvalidResponseDataException
-     * @throws NonSuccessResponseException
-     * @throws InvalidModelDataException
-     * @throws InvalidResponseTypeException
-     */
     public function refreshFrontendToken(string $refreshToken): ?RefreshableToken
     {
         try {
@@ -255,14 +193,6 @@ readonly class Client
         return $this->createRefreshableTokenModel($response);
     }
 
-    /**
-     * @throws ClientExceptionInterface
-     * @throws InvalidResponseDataException
-     * @throws NonSuccessResponseException
-     * @throws InvalidModelDataException
-     * @throws InvalidResponseTypeException
-     * @throws UnauthorizedException
-     */
     public function createApiToken(string $apiKey): Token
     {
         $response = $this->serviceClient->sendRequest(
@@ -288,11 +218,6 @@ readonly class Client
         return new Token($tokenValue);
     }
 
-    /**
-     * @throws ClientExceptionInterface
-     * @throws NonSuccessResponseException
-     * @throws UnauthorizedException
-     */
     public function revokeFrontendRefreshTokensForUser(string $adminToken, string $userId): void
     {
         $response = $this->serviceClient->sendRequest(
@@ -306,11 +231,6 @@ readonly class Client
         }
     }
 
-    /**
-     * @throws ClientExceptionInterface
-     * @throws NonSuccessResponseException
-     * @throws UnauthorizedException
-     */
     public function revokeFrontendRefreshToken(string $token, string $refreshToken): void
     {
         $response = $this->serviceClient->sendRequest(
