@@ -27,7 +27,7 @@ class ListUserApiKeysTest extends AbstractClientTestCase
      * @param class-string<\Throwable> $expectedExceptionClass
      */
     public function testListUserApiKeysThrowsException(
-        ResponseInterface|ClientExceptionInterface $httpFixture,
+        ClientExceptionInterface|ResponseInterface $httpFixture,
         string $expectedExceptionClass,
     ): void {
         $this->mockHandler->append($httpFixture);
