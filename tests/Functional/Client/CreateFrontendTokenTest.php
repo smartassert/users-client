@@ -26,7 +26,7 @@ class CreateFrontendTokenTest extends AbstractClientTestCase
      * @param class-string<\Throwable> $expectedExceptionClass
      */
     public function testCreateFrontendTokenThrowsException(
-        ResponseInterface|ClientExceptionInterface $httpFixture,
+        ClientExceptionInterface|ResponseInterface $httpFixture,
         string $expectedExceptionClass,
     ): void {
         $this->mockHandler->append($httpFixture);

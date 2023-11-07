@@ -26,7 +26,7 @@ class CreateApiTokenTest extends AbstractClientTestCase
      * @param class-string<\Throwable> $expectedExceptionClass
      */
     public function testCreateApiTokenThrowsException(
-        ResponseInterface|ClientExceptionInterface $httpFixture,
+        ClientExceptionInterface|ResponseInterface $httpFixture,
         string $expectedExceptionClass,
     ): void {
         $this->mockHandler->append($httpFixture);

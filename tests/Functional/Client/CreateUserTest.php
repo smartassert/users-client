@@ -28,7 +28,7 @@ class CreateUserTest extends AbstractClientTestCase
      * @param class-string<\Throwable> $expectedExceptionClass
      */
     public function testCreateUserThrowsException(
-        ResponseInterface|ClientExceptionInterface $httpFixture,
+        ClientExceptionInterface|ResponseInterface $httpFixture,
         string $expectedExceptionClass,
     ): void {
         $this->mockHandler->append($httpFixture);
