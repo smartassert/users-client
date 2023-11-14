@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace SmartAssert\UsersClient\Model;
 
-class RefreshableToken extends Token
+use SmartAssert\ServiceClient\SerializableInterface;
+
+readonly class RefreshableToken extends Token implements SerializableInterface
 {
     /**
      * @param non-empty-string $token
@@ -12,8 +14,16 @@ class RefreshableToken extends Token
      */
     public function __construct(
         string $token,
-        public readonly string $refreshToken,
+        public string $refreshToken,
     ) {
         parent::__construct($token);
+    }
+
+    /**
+     * @return array{token: non-empty-string, refresh_token: non-empty-string}
+     */
+    public function toArray(): array
+    {
+        return array_merge(parent::toArray(), ['refresh_token' => $this->refreshToken]);
     }
 }
