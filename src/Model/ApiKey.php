@@ -6,6 +6,9 @@ namespace SmartAssert\UsersClient\Model;
 
 use SmartAssert\ServiceClient\SerializableInterface;
 
+/**
+ * @phpstan-type SerializedApiKey array{label: ?non-empty-string, key: non-empty-string}
+ */
 readonly class ApiKey implements SerializableInterface
 {
     /**
@@ -24,7 +27,7 @@ readonly class ApiKey implements SerializableInterface
     }
 
     /**
-     * @return array{label: ?non-empty-string, key: non-empty-string}
+     * @return SerializedApiKey
      */
     public function toArray(): array
     {
