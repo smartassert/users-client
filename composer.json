@@ -73,7 +73,7 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^9.6",
-        "squizlabs/php_codesniffer": "dev-master#7c452b0ff35ab2cf1d0c60965fea3e79f621b2d2",
+        "squizlabs/php_codesniffer": "dev-master#5798f29bc985e7ad4470d4488db2cda8cd3f8109",
         "phpstan/phpstan": "^1.8",
         "guzzlehttp/guzzle": "^7.5",
         "webignition/http-history-container": "^2.4",
