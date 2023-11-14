@@ -4,16 +4,20 @@ declare(strict_types=1);
 
 namespace SmartAssert\UsersClient\Model;
 
+use SmartAssert\ServiceClient\SerializableInterface;
+
 /**
  * @implements \IteratorAggregate<ApiKey>
+ *
+ * @phpstan-import-type SerializedApiKey from ApiKey
  */
-class ApiKeyCollection implements \IteratorAggregate
+readonly class ApiKeyCollection implements \IteratorAggregate, SerializableInterface
 {
     /**
      * @param ApiKey[] $apiKeys
      */
     public function __construct(
-        private readonly array $apiKeys,
+        private array $apiKeys,
     ) {
     }
 
@@ -31,5 +35,19 @@ class ApiKeyCollection implements \IteratorAggregate
     public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->apiKeys);
+    }
+
+    /**
+     * @return array<SerializedApiKey>
+     */
+    public function toArray(): array
+    {
+        $data = [];
+
+        foreach ($this->apiKeys as $apiKey) {
+            $data[] = $apiKey->toArray();
+        }
+
+        return $data;
     }
 }
