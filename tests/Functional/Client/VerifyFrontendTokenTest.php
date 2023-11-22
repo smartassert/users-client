@@ -38,7 +38,7 @@ class VerifyFrontendTokenTest extends AbstractClientTestCase
             $this->client->verifyFrontendToken('token');
             self::fail(NonSuccessResponseException::class . ' not thrown');
         } catch (NonSuccessResponseException $e) {
-            self::assertSame($httpFixture, $e->response);
+            self::assertSame($httpFixture, $e->getHttpResponse());
         }
     }
 

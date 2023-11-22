@@ -72,7 +72,7 @@ class CreateUserTest extends AbstractClientTestCase
             $this->client->createUser('admin token', 'email', 'password');
             self::fail(NonSuccessResponseException::class . ' not thrown');
         } catch (NonSuccessResponseException $e) {
-            self::assertSame($httpFixture, $e->response);
+            self::assertSame($httpFixture, $e->getHttpResponse());
         }
     }
 
