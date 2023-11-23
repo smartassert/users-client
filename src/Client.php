@@ -46,7 +46,7 @@ readonly class Client implements ClientInterface
     public function createUser(string $adminToken, string $email, string $password): User
     {
         try {
-            $response = $this->serviceClient->sendRequest(
+            $response = $this->serviceClient->sendRequestForJson(
                 (new Request('POST', $this->createUrl('/user/create')))
                     ->withAuthentication(new Authentication($adminToken))
                     ->withPayload(new UrlEncodedPayload([
@@ -62,10 +62,6 @@ readonly class Client implements ClientInterface
             throw $e;
         }
 
-        if (!$response instanceof JsonResponse) {
-            throw InvalidResponseTypeException::create($response, JsonResponse::class);
-        }
-
         $responseDataInspector = new ArrayInspector($response->getData());
         $userData = $responseDataInspector->getArray('user');
 
@@ -79,17 +75,13 @@ readonly class Client implements ClientInterface
 
     public function createFrontendToken(string $email, string $password): RefreshableToken
     {
-        $response = $this->serviceClient->sendRequest(
+        $response = $this->serviceClient->sendRequestForJson(
             (new Request('POST', $this->createUrl('/frontend-token/create')))
                 ->withPayload(new JsonPayload([
                     'username' => $email,
                     'password' => $password,
                 ]))
         );
-
-        if (!$response instanceof JsonResponse) {
-            throw InvalidResponseTypeException::create($response, JsonResponse::class);
-        }
 
         $token = $this->createRefreshableTokenModel($response);
         if (null === $token) {
@@ -101,14 +93,10 @@ readonly class Client implements ClientInterface
 
     public function listUserApiKeys(string $token): ApiKeyCollection
     {
-        $response = $this->serviceClient->sendRequest(
+        $response = $this->serviceClient->sendRequestForJson(
             (new Request('GET', $this->createUrl('/apikey/list')))
                 ->withAuthentication(new BearerAuthentication($token))
         );
-
-        if (!$response instanceof JsonResponse) {
-            throw InvalidResponseTypeException::create($response, JsonResponse::class);
-        }
 
         $responseDataInspector = new ArrayInspector($response->getData());
 
@@ -135,14 +123,10 @@ readonly class Client implements ClientInterface
 
     public function getUserDefaultApiKey(string $token): ?ApiKey
     {
-        $response = $this->serviceClient->sendRequest(
+        $response = $this->serviceClient->sendRequestForJson(
             (new Request('GET', $this->createUrl('/apikey')))
                 ->withAuthentication(new BearerAuthentication($token))
         );
-
-        if (!$response instanceof JsonResponse) {
-            throw InvalidResponseTypeException::create($response, JsonResponse::class);
-        }
 
         $responseDataInspector = new ArrayInspector($response->getData());
 
@@ -157,16 +141,12 @@ readonly class Client implements ClientInterface
     public function refreshFrontendToken(string $refreshToken): ?RefreshableToken
     {
         try {
-            $response = $this->serviceClient->sendRequest(
+            $response = $this->serviceClient->sendRequestForJson(
                 (new Request('POST', $this->createUrl('/frontend-token/refresh')))
                     ->withPayload(new JsonPayload(['refresh_token' => $refreshToken]))
             );
         } catch (UnauthorizedException) {
             return null;
-        }
-
-        if (!$response instanceof JsonResponse) {
-            throw InvalidResponseTypeException::create($response, JsonResponse::class);
         }
 
         $refreshToken = $this->createRefreshableTokenModel($response);
@@ -179,14 +159,10 @@ readonly class Client implements ClientInterface
 
     public function createApiToken(string $apiKey): Token
     {
-        $response = $this->serviceClient->sendRequest(
+        $response = $this->serviceClient->sendRequestForJson(
             (new Request('POST', $this->createUrl('/api-token/create')))
                 ->withAuthentication(new Authentication($apiKey))
         );
-
-        if (!$response instanceof JsonResponse) {
-            throw InvalidResponseTypeException::create($response, JsonResponse::class);
-        }
 
         $responseDataInspector = new ArrayInspector($response->getData());
         $tokenValue = $responseDataInspector->getNonEmptyString('token');
@@ -241,16 +217,12 @@ readonly class Client implements ClientInterface
     private function makeTokenVerificationRequest(string $token, string $url): ?User
     {
         try {
-            $response = $this->serviceClient->sendRequest(
+            $response = $this->serviceClient->sendRequestForJson(
                 (new Request('GET', $url))
                     ->withAuthentication(new BearerAuthentication($token))
             );
         } catch (UnauthorizedException) {
             return null;
-        }
-
-        if (!$response instanceof JsonResponse) {
-            throw InvalidResponseTypeException::create($response, JsonResponse::class);
         }
 
         $user = $this->createUserModel(new ArrayInspector($response->getData()));
