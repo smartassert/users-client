@@ -49,6 +49,7 @@ interface ClientInterface
      * @throws InvalidModelDataException
      * @throws InvalidResponseTypeException
      * @throws UnauthorizedException
+     * @throws NonSuccessResponseException
      */
     public function createUser(string $adminToken, string $email, string $password): User;
 

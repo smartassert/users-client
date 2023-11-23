@@ -47,7 +47,7 @@ class RefreshFrontendTokenTest extends AbstractClientTestCase
             $this->client->refreshFrontendToken(md5((string) rand()));
             self::fail(NonSuccessResponseException::class . ' not thrown');
         } catch (NonSuccessResponseException $e) {
-            self::assertSame($httpFixture, $e->response);
+            self::assertSame($httpFixture, $e->getHttpResponse());
         }
     }
 

@@ -45,21 +45,21 @@ readonly class Client implements ClientInterface
 
     public function createUser(string $adminToken, string $email, string $password): User
     {
-        $response = $this->serviceClient->sendRequest(
-            (new Request('POST', $this->createUrl('/user/create')))
-                ->withAuthentication(new Authentication($adminToken))
-                ->withPayload(new UrlEncodedPayload([
-                    'email' => $email,
-                    'password' => $password,
-                ]))
-        );
+        try {
+            $response = $this->serviceClient->sendRequest(
+                (new Request('POST', $this->createUrl('/user/create')))
+                    ->withAuthentication(new Authentication($adminToken))
+                    ->withPayload(new UrlEncodedPayload([
+                        'email' => $email,
+                        'password' => $password,
+                    ]))
+            );
+        } catch (NonSuccessResponseException $e) {
+            if (409 === $e->getStatusCode()) {
+                throw new UserAlreadyExistsException($email, $e->getHttpResponse());
+            }
 
-        if (409 === $response->getStatusCode()) {
-            throw new UserAlreadyExistsException($email, $response->getHttpResponse());
-        }
-
-        if (!$response->isSuccessful()) {
-            throw new NonSuccessResponseException($response->getHttpResponse());
+            throw $e;
         }
 
         if (!$response instanceof JsonResponse) {
@@ -87,10 +87,6 @@ readonly class Client implements ClientInterface
                 ]))
         );
 
-        if (!$response->isSuccessful()) {
-            throw new NonSuccessResponseException($response->getHttpResponse());
-        }
-
         if (!$response instanceof JsonResponse) {
             throw InvalidResponseTypeException::create($response, JsonResponse::class);
         }
@@ -109,10 +105,6 @@ readonly class Client implements ClientInterface
             (new Request('GET', $this->createUrl('/apikey/list')))
                 ->withAuthentication(new BearerAuthentication($token))
         );
-
-        if (!$response->isSuccessful()) {
-            throw new NonSuccessResponseException($response->getHttpResponse());
-        }
 
         if (!$response instanceof JsonResponse) {
             throw InvalidResponseTypeException::create($response, JsonResponse::class);
@@ -148,10 +140,6 @@ readonly class Client implements ClientInterface
                 ->withAuthentication(new BearerAuthentication($token))
         );
 
-        if (!$response->isSuccessful()) {
-            throw new NonSuccessResponseException($response->getHttpResponse());
-        }
-
         if (!$response instanceof JsonResponse) {
             throw InvalidResponseTypeException::create($response, JsonResponse::class);
         }
@@ -177,10 +165,6 @@ readonly class Client implements ClientInterface
             return null;
         }
 
-        if (!$response->isSuccessful()) {
-            throw new NonSuccessResponseException($response->getHttpResponse());
-        }
-
         if (!$response instanceof JsonResponse) {
             throw InvalidResponseTypeException::create($response, JsonResponse::class);
         }
@@ -200,10 +184,6 @@ readonly class Client implements ClientInterface
                 ->withAuthentication(new Authentication($apiKey))
         );
 
-        if (!$response->isSuccessful()) {
-            throw new NonSuccessResponseException($response->getHttpResponse());
-        }
-
         if (!$response instanceof JsonResponse) {
             throw InvalidResponseTypeException::create($response, JsonResponse::class);
         }
@@ -220,28 +200,20 @@ readonly class Client implements ClientInterface
 
     public function revokeFrontendRefreshTokensForUser(string $adminToken, string $userId): void
     {
-        $response = $this->serviceClient->sendRequest(
+        $this->serviceClient->sendRequest(
             (new Request('POST', $this->createUrl('/refresh-token/revoke-all-for-user')))
                 ->withAuthentication(new Authentication($adminToken))
                 ->withPayload(new UrlEncodedPayload(['id' => $userId]))
         );
-
-        if (!$response->isSuccessful()) {
-            throw new NonSuccessResponseException($response->getHttpResponse());
-        }
     }
 
     public function revokeFrontendRefreshToken(string $token, string $refreshToken): void
     {
-        $response = $this->serviceClient->sendRequest(
+        $this->serviceClient->sendRequest(
             (new Request('POST', $this->createUrl('/refresh-token/revoke')))
                 ->withAuthentication(new BearerAuthentication($token))
                 ->withPayload(new UrlEncodedPayload(['refresh_token' => $refreshToken]))
         );
-
-        if (!$response->isSuccessful()) {
-            throw new NonSuccessResponseException($response->getHttpResponse());
-        }
     }
 
     /**
@@ -275,10 +247,6 @@ readonly class Client implements ClientInterface
             );
         } catch (UnauthorizedException) {
             return null;
-        }
-
-        if (!$response->isSuccessful()) {
-            throw new NonSuccessResponseException($response->getHttpResponse());
         }
 
         if (!$response instanceof JsonResponse) {
