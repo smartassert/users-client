@@ -8,12 +8,12 @@ use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
-use SmartAssert\UsersClient\Model\FrontendCredentials;
+use SmartAssert\UsersClient\Model\RefreshableToken;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\CommonNonSuccessResponseDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\InvalidJsonResponseExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
 
-class RefreshFrontendCredentialsTest extends AbstractClientTestCase
+class RefreshFrontendTokenTest extends AbstractClientTestCase
 {
     use CommonNonSuccessResponseDataProviderTrait;
     use InvalidJsonResponseExceptionDataProviderTrait;
@@ -33,7 +33,7 @@ class RefreshFrontendCredentialsTest extends AbstractClientTestCase
 
         $this->expectException($expectedExceptionClass);
 
-        $this->client->refreshFrontendCredentials(md5((string) rand()));
+        $this->client->refreshFrontendToken(md5((string) rand()));
     }
 
     /**
@@ -44,7 +44,7 @@ class RefreshFrontendCredentialsTest extends AbstractClientTestCase
         $this->mockHandler->append($httpFixture);
 
         try {
-            $this->client->refreshFrontendCredentials(md5((string) rand()));
+            $this->client->refreshFrontendToken(md5((string) rand()));
             self::fail(NonSuccessResponseException::class . ' not thrown');
         } catch (NonSuccessResponseException $e) {
             self::assertSame($httpFixture, $e->getHttpResponse());
@@ -55,22 +55,22 @@ class RefreshFrontendCredentialsTest extends AbstractClientTestCase
     {
         $this->doInvalidResponseDataTest(
             function () {
-                $this->client->refreshFrontendCredentials(md5((string) rand()));
+                $this->client->refreshFrontendToken(md5((string) rand()));
             },
-            FrontendCredentials::class
+            RefreshableToken::class
         );
     }
 
     /**
      * @dataProvider refreshFrontendTokenSuccessDataProvider
      */
-    public function testRefreshFrontendTokenSuccess(ResponseInterface $httpFixture, FrontendCredentials $expected): void
+    public function testRefreshFrontendTokenSuccess(ResponseInterface $httpFixture, RefreshableToken $expected): void
     {
         $refreshToken = md5((string) rand());
 
         $this->mockHandler->append($httpFixture);
 
-        $actual = $this->client->refreshFrontendCredentials($refreshToken);
+        $actual = $this->client->refreshFrontendToken($refreshToken);
         self::assertEquals($expected, $actual);
 
         $request = $this->getLastRequest();
@@ -89,7 +89,6 @@ class RefreshFrontendCredentialsTest extends AbstractClientTestCase
     {
         $token = md5((string) rand());
         $refreshToken = md5((string) rand());
-        $apiKey = md5((string) rand());
 
         return [
             'refreshed' => [
@@ -101,10 +100,9 @@ class RefreshFrontendCredentialsTest extends AbstractClientTestCase
                     (string) json_encode([
                         'token' => $token,
                         'refresh_token' => $refreshToken,
-                        'api_key' => $apiKey,
                     ])
                 ),
-                'expected' => new FrontendCredentials($token, $refreshToken, $apiKey),
+                'expected' => new RefreshableToken($token, $refreshToken),
             ],
         ];
     }
