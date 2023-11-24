@@ -13,7 +13,7 @@ use SmartAssert\ServiceClient\Exception\UnauthorizedException;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 use SmartAssert\UsersClient\Model\ApiKey;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
-use SmartAssert\UsersClient\Model\RefreshableToken;
+use SmartAssert\UsersClient\Model\FrontendCredentials;
 use SmartAssert\UsersClient\Model\Token;
 use SmartAssert\UsersClient\Model\User;
 
@@ -61,7 +61,7 @@ interface ClientInterface
      * @throws InvalidResponseTypeException
      * @throws UnauthorizedException
      */
-    public function createFrontendToken(string $email, string $password): RefreshableToken;
+    public function createFrontendCredentials(string $email, string $password): FrontendCredentials;
 
     /**
      * @param non-empty-string $token
@@ -94,7 +94,7 @@ interface ClientInterface
      * @throws InvalidModelDataException
      * @throws InvalidResponseTypeException
      */
-    public function refreshFrontendToken(string $refreshToken): ?RefreshableToken;
+    public function refreshFrontendCredentials(string $refreshToken): ?FrontendCredentials;
 
     /**
      * @throws ClientExceptionInterface

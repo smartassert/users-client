@@ -6,7 +6,7 @@ namespace SmartAssert\UsersClient\Tests\Integration;
 
 use SmartAssert\ServiceClient\Exception\UnauthorizedException;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
-use SmartAssert\UsersClient\Model\Token;
+use SmartAssert\UsersClient\Model\FrontendCredentials;
 use SmartAssert\UsersClient\Model\User;
 use Symfony\Component\Uid\Ulid;
 
@@ -36,7 +36,7 @@ class CreateUserTest extends AbstractIntegrationTestCase
         self::assertTrue(Ulid::isValid($user->id));
         self::assertSame($email, $user->userIdentifier);
 
-        $frontendToken = $this->client->createFrontendToken($email, $password);
-        self::assertInstanceOf(Token::class, $frontendToken);
+        $frontendCredentials = $this->client->createFrontendCredentials($email, $password);
+        self::assertInstanceOf(FrontendCredentials::class, $frontendCredentials);
     }
 }
