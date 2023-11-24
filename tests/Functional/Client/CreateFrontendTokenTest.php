@@ -8,12 +8,12 @@ use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
-use SmartAssert\UsersClient\Model\FrontendCredentials;
+use SmartAssert\UsersClient\Model\RefreshableToken;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\CommonNonSuccessResponseDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\InvalidJsonResponseExceptionDataProviderTrait;
 use SmartAssert\UsersClient\Tests\Functional\DataProvider\NetworkErrorExceptionDataProviderTrait;
 
-class CreateFrontendCredentialsTest extends AbstractClientTestCase
+class CreateFrontendTokenTest extends AbstractClientTestCase
 {
     use CommonNonSuccessResponseDataProviderTrait;
     use InvalidJsonResponseExceptionDataProviderTrait;
@@ -25,7 +25,7 @@ class CreateFrontendCredentialsTest extends AbstractClientTestCase
      *
      * @param class-string<\Throwable> $expectedExceptionClass
      */
-    public function testCreateThrowsException(
+    public function testCreateFrontendTokenThrowsException(
         ClientExceptionInterface|ResponseInterface $httpFixture,
         string $expectedExceptionClass,
     ): void {
@@ -33,45 +33,45 @@ class CreateFrontendCredentialsTest extends AbstractClientTestCase
 
         $this->expectException($expectedExceptionClass);
 
-        $this->client->createFrontendCredentials('email', 'password');
+        $this->client->createFrontendToken('email', 'password');
     }
 
     /**
      * @dataProvider commonNonSuccessResponseDataProvider
      */
-    public function testCreateThrowsNonSuccessResponseException(ResponseInterface $httpFixture): void
+    public function testCreateFrontendTokenThrowsNonSuccessResponseException(ResponseInterface $httpFixture): void
     {
         $this->mockHandler->append($httpFixture);
 
         try {
-            $this->client->createFrontendCredentials('email', 'password');
+            $this->client->createFrontendToken('email', 'password');
             self::fail(NonSuccessResponseException::class . ' not thrown');
         } catch (NonSuccessResponseException $e) {
             self::assertSame($httpFixture, $e->getHttpResponse());
         }
     }
 
-    public function testCreateInvalidResponseData(): void
+    public function testCreateFrontendTokenInvalidResponseData(): void
     {
         $this->doInvalidResponseDataTest(
             function () {
-                $this->client->createFrontendCredentials('email', 'password');
+                $this->client->createFrontendToken('email', 'password');
             },
-            FrontendCredentials::class
+            RefreshableToken::class
         );
     }
 
     /**
-     * @dataProvider createSuccessDataProvider
+     * @dataProvider createFrontendTokenSuccessDataProvider
      */
-    public function testCreateSuccess(ResponseInterface $httpFixture, FrontendCredentials $expected): void
+    public function testCreateFrontendTokenSuccess(ResponseInterface $httpFixture, RefreshableToken $expected): void
     {
         $this->mockHandler->append($httpFixture);
 
         $email = 'email value';
         $password = 'password value';
 
-        $actual = $this->client->createFrontendCredentials($email, $password);
+        $actual = $this->client->createFrontendToken($email, $password);
         self::assertEquals($expected, $actual);
 
         $request = $this->getLastRequest();
@@ -86,11 +86,10 @@ class CreateFrontendCredentialsTest extends AbstractClientTestCase
     /**
      * @return array<mixed>
      */
-    public function createSuccessDataProvider(): array
+    public function createFrontendTokenSuccessDataProvider(): array
     {
         $token = md5((string) rand());
         $refreshToken = md5((string) rand());
-        $apiKey = md5((string) rand());
 
         return [
             'created' => [
@@ -102,10 +101,9 @@ class CreateFrontendCredentialsTest extends AbstractClientTestCase
                     (string) json_encode([
                         'token' => $token,
                         'refresh_token' => $refreshToken,
-                        'api_key' => $apiKey,
                     ])
                 ),
-                'expected' => new FrontendCredentials($token, $refreshToken, $apiKey),
+                'expected' => new RefreshableToken($token, $refreshToken),
             ],
         ];
     }

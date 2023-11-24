@@ -21,7 +21,7 @@ use SmartAssert\ServiceClient\Response\JsonResponse;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 use SmartAssert\UsersClient\Model\ApiKey;
 use SmartAssert\UsersClient\Model\ApiKeyCollection;
-use SmartAssert\UsersClient\Model\FrontendCredentials;
+use SmartAssert\UsersClient\Model\RefreshableToken;
 use SmartAssert\UsersClient\Model\Token;
 use SmartAssert\UsersClient\Model\User;
 
@@ -73,7 +73,7 @@ readonly class Client implements ClientInterface
         return $user;
     }
 
-    public function createFrontendCredentials(string $email, string $password): FrontendCredentials
+    public function createFrontendToken(string $email, string $password): RefreshableToken
     {
         $response = $this->serviceClient->sendRequestForJson(
             (new Request('POST', $this->createUrl('/frontend-token/create')))
@@ -83,9 +83,9 @@ readonly class Client implements ClientInterface
                 ]))
         );
 
-        $token = $this->createFrontendCredentialsModel($response);
+        $token = $this->createRefreshableTokenModel($response);
         if (null === $token) {
-            throw InvalidModelDataException::fromJsonResponse(FrontendCredentials::class, $response);
+            throw InvalidModelDataException::fromJsonResponse(RefreshableToken::class, $response);
         }
 
         return $token;
@@ -138,7 +138,7 @@ readonly class Client implements ClientInterface
         return null;
     }
 
-    public function refreshFrontendCredentials(string $refreshToken): ?FrontendCredentials
+    public function refreshFrontendToken(string $refreshToken): ?RefreshableToken
     {
         try {
             $response = $this->serviceClient->sendRequestForJson(
@@ -149,12 +149,12 @@ readonly class Client implements ClientInterface
             return null;
         }
 
-        $refreshToken = $this->createFrontendCredentialsModel($response);
+        $refreshToken = $this->createRefreshableTokenModel($response);
         if (null === $refreshToken) {
-            throw InvalidModelDataException::fromJsonResponse(FrontendCredentials::class, $response);
+            throw InvalidModelDataException::fromJsonResponse(RefreshableToken::class, $response);
         }
 
-        return $this->createFrontendCredentialsModel($response);
+        return $this->createRefreshableTokenModel($response);
     }
 
     public function createApiToken(string $apiKey): Token
@@ -195,17 +195,14 @@ readonly class Client implements ClientInterface
     /**
      * @throws InvalidResponseDataException
      */
-    private function createFrontendCredentialsModel(JsonResponse $response): ?FrontendCredentials
+    private function createRefreshableTokenModel(JsonResponse $response): ?RefreshableToken
     {
         $responseDataInspector = new ArrayInspector($response->getData());
 
         $token = $responseDataInspector->getNonEmptyString('token');
         $refreshToken = $responseDataInspector->getNonEmptyString('refresh_token');
-        $apiKey = $responseDataInspector->getNonEmptyString('api_key');
 
-        return null === $token || null === $refreshToken || null === $apiKey
-            ? null
-            : new FrontendCredentials($token, $refreshToken, $apiKey);
+        return null === $token || null === $refreshToken ? null : new RefreshableToken($token, $refreshToken);
     }
 
     /**
