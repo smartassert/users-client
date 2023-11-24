@@ -8,7 +8,7 @@ use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\Token\Plain;
 use SmartAssert\ServiceClient\Exception\UnauthorizedException;
-use SmartAssert\UsersClient\Model\RefreshableToken;
+use SmartAssert\UsersClient\Model\FrontendCredentials;
 use SmartAssert\UsersClient\Model\User;
 
 class CreateVerifyRefreshFrontendTokenTest extends AbstractIntegrationTestCase
@@ -17,15 +17,15 @@ class CreateVerifyRefreshFrontendTokenTest extends AbstractIntegrationTestCase
     {
         self::expectException(UnauthorizedException::class);
 
-        $this->client->createFrontendToken(md5((string) rand()), md5((string) rand()));
+        $this->client->createFrontendCredentials(md5((string) rand()), md5((string) rand()));
     }
 
     public function testCreateVerifyRefreshFrontendToken(): void
     {
         $parser = new Parser(new JoseEncoder());
 
-        $token = $this->client->createFrontendToken(self::USER_EMAIL, self::USER_PASSWORD);
-        self::assertInstanceOf(RefreshableToken::class, $token);
+        $token = $this->client->createFrontendCredentials(self::USER_EMAIL, self::USER_PASSWORD);
+        self::assertInstanceOf(FrontendCredentials::class, $token);
 
         $userFromToken = $this->client->verifyFrontendToken($token->token);
         self::assertInstanceOf(User::class, $userFromToken);
@@ -36,8 +36,8 @@ class CreateVerifyRefreshFrontendTokenTest extends AbstractIntegrationTestCase
         self::assertSame(self::USER_EMAIL, $parsedToken->claims()->get('email'));
         self::assertSame($userFromToken->id, $parsedToken->claims()->get('sub'));
 
-        $refreshedToken = $this->client->refreshFrontendToken($token->refreshToken);
-        self::assertInstanceOf(RefreshableToken::class, $refreshedToken);
+        $refreshedToken = $this->client->refreshFrontendCredentials($token->refreshToken);
+        self::assertInstanceOf(FrontendCredentials::class, $refreshedToken);
 
         $parsedRefreshedToken = $parser->parse($refreshedToken->token);
         self::assertInstanceOf(Plain::class, $parsedRefreshedToken);

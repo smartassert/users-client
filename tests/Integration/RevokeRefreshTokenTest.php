@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace SmartAssert\UsersClient\Tests\Integration;
 
 use SmartAssert\ServiceClient\Exception\UnauthorizedException;
-use SmartAssert\UsersClient\Model\RefreshableToken;
+use SmartAssert\UsersClient\Model\FrontendCredentials;
 use SmartAssert\UsersClient\Model\User;
 
 class RevokeRefreshTokenTest extends AbstractIntegrationTestCase
@@ -19,17 +19,17 @@ class RevokeRefreshTokenTest extends AbstractIntegrationTestCase
 
     public function testRevokeSuccess(): void
     {
-        $token = $this->client->createFrontendToken(self::USER_EMAIL, self::USER_PASSWORD);
-        \assert($token instanceof RefreshableToken);
+        $token = $this->client->createFrontendCredentials(self::USER_EMAIL, self::USER_PASSWORD);
+        \assert($token instanceof FrontendCredentials);
 
         $userFromToken = $this->client->verifyFrontendToken($token->token);
         \assert($userFromToken instanceof User);
 
-        $refreshedToken = $this->client->refreshFrontendToken($token->refreshToken);
-        \assert($refreshedToken instanceof RefreshableToken);
+        $refreshedToken = $this->client->refreshFrontendCredentials($token->refreshToken);
+        \assert($refreshedToken instanceof FrontendCredentials);
 
         $this->client->revokeFrontendRefreshToken($token->token, $token->refreshToken);
 
-        self::assertNull($this->client->refreshFrontendToken($refreshedToken->token));
+        self::assertNull($this->client->refreshFrontendCredentials($refreshedToken->token));
     }
 }
